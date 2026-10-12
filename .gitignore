@@ -1,0 +1,51 @@
+# Virtual environments
+.venv/
+venv/
+ENV/
+env/
+
+# Python cache & build
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+*.log
+
+# Node & Frontend build
+node_modules/
+frontend/dist/
+frontend/.vite/
+backend/autoclip/static/
+
+# Media & Large binaries (keep out of git)
+repos/
+test-videos/
+*.mp4
+*.mkv
+*.webm
+*.wav
+*.mp3
+*.mov
+
+# Databases & local runtime state
+*.db
+*.sqlite3
+.autoclip/
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+
+# Environment secrets
+.env
+.env.*
