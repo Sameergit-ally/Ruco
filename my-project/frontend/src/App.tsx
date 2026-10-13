@@ -24,19 +24,23 @@ export function App() {
       >
         Skip to content
       </a>
-      <header className="border-b border-hairline bg-canvas">
-        <nav aria-label="Main" className={`mx-auto flex h-14 ${frame} items-center gap-group px-4 sm:px-6`}>
+      <header className="sticky top-0 z-40 border-b border-white/8 bg-black/70 backdrop-blur-xl transition-all">
+        <nav aria-label="Main" className={`mx-auto flex h-15 ${frame} items-center gap-group px-4 sm:px-6`}>
           <Logo />
           <div className="ml-auto flex items-center gap-group font-mono text-small">
             {system && <SystemBadge system={system} />}
             <NavLink
               to="/settings"
-              className={({ isActive }) => (isActive ? 'text-ink font-semibold' : 'text-graphite hover:text-ink')}
+              className={({ isActive }) =>
+                isActive
+                  ? 'text-white font-medium bg-white/8 px-2.5 py-1 rounded-control'
+                  : 'text-graphite hover:text-white px-2.5 py-1 transition-colors'
+              }
             >
               Settings
             </NavLink>
-            <NavLink to="/" end className="btn btn-secondary btn-sm">
-              New clip
+            <NavLink to="/" end className="btn btn-primary btn-sm">
+              + New Clip
             </NavLink>
           </div>
         </nav>
