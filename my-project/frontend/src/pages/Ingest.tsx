@@ -60,164 +60,205 @@ export function Ingest() {
   const isOllama = activeProviderName.toLowerCase() === 'ollama'
 
   return (
-    <div className="relative pt-6 sm:pt-10">
+    <div className="relative pt-4 sm:pt-8">
       {/* Luxury Ambient Radial Glow (Burgundy to Black) */}
       <div
         aria-hidden
-        className="pointer-events-none absolute -top-24 left-1/2 -z-10 h-[500px] w-full max-w-[800px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(109,0,26,0.22)_0%,rgba(109,0,26,0.06)_40%,transparent_70%)] blur-3xl"
+        className="pointer-events-none absolute -top-32 left-1/2 -z-10 h-[600px] w-full max-w-[1100px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(109,0,26,0.25)_0%,rgba(109,0,26,0.08)_45%,transparent_75%)] blur-3xl"
       />
 
-      {/* Hero DotField bleeding off the right */}
+      {/* Hero DotField across background */}
       <DotField
         tone="ink"
         interactive
-        className="-mx-4 -mt-stack -mb-group h-48 [mask-image:linear-gradient(to_bottom,black_30%,transparent)] sm:mx-0 sm:-mt-section lg:fixed lg:inset-y-0 lg:right-0 lg:-z-10 lg:m-0 lg:h-auto lg:w-1/2 lg:[mask-image:linear-gradient(to_right,transparent,black_25%)]"
+        className="pointer-events-none fixed inset-0 -z-10 opacity-60 [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black_80%)]"
       />
 
-      <div className="max-w-2xl">
-        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1 font-mono text-[0.72rem] tracking-widest uppercase text-pencil shadow-sm backdrop-blur-md">
-          <span className="size-1.5 rounded-full bg-[#6d001a] shadow-[0_0_8px_#e5476a]" />
-          <span className="text-graphite font-medium">AI AUTOCLIP ENGINE</span>
-          <span className="text-white/20">—</span>
-          <span>LOCAL · PRIVATE · 4K</span>
-        </div>
-
-        <h1 className="mt-5 font-['Playfair_Display'] text-[3.25rem] font-medium tracking-tight text-white sm:text-[4.5rem] leading-[0.98]">
-          <span className="block tracking-wide uppercase font-light text-white/95">
-            LONG VIDEO
-          </span>
-          <span className="flex items-baseline gap-3 mt-1">
-            <span className="font-['Italianno'] text-[3.8rem] sm:text-[5.2rem] font-normal lowercase tracking-normal text-[#e5476a] -translate-y-2 select-none italic">
-              into
-            </span>
-            <span className="tracking-wide uppercase font-bold bg-gradient-to-r from-white via-white/95 to-[#ffb3c1] bg-clip-text text-transparent">
-              VIRAL SHORTS
-            </span>
-          </span>
-        </h1>
-        <p className="mt-4 font-['Cormorant_Garamond'] text-xl italic text-graphite/90 max-w-lg leading-relaxed">
-          Transform raw video into cinematic, high-retention vertical clips built to captivate and convert.
-        </p>
-      </div>
-
-      <div className="mt-10 grid gap-6 lg:max-w-[640px]">
-        {/* URL Form inside high-end glow-card */}
-        <section>
-          <form
-            onSubmit={submitUrl}
-            className="glow-card rounded-panel p-5 transition-all duration-200 focus-within:border-[#9e1432]/60 focus-within:shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_18px_48px_-10px_rgba(0,0,0,0.9),0_0_35px_rgba(109,0,26,0.4)]"
-          >
-            <div className="flex items-center justify-between">
-              <label htmlFor="url" className="flex items-center gap-2 font-mono text-micro font-medium text-graphite uppercase tracking-wider">
-                <svg className="size-3.5 text-[#e5476a]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                </svg>
-                Paste Video Link
-              </label>
-              <span className="font-mono text-micro text-pencil">YouTube · Vimeo · Direct MP4</span>
+      {/* Main 2-Column Balanced Grid */}
+      <div className="grid gap-10 lg:grid-cols-12 lg:items-start lg:gap-12">
+        {/* Left Column (Hero Content + Showcase Feature Badges) - 7 cols */}
+        <div className="space-y-8 lg:col-span-7">
+          <div>
+            <div className="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 font-mono text-[0.72rem] tracking-widest uppercase text-pencil shadow-sm backdrop-blur-md">
+              <span className="size-2 rounded-full bg-[#6d001a] shadow-[0_0_10px_#e5476a]" />
+              <span className="text-graphite font-semibold">AI AUTOCLIP ENGINE</span>
+              <span className="text-white/20">—</span>
+              <span>LOCAL · 4K 60FPS · NO WATERMARKS</span>
             </div>
 
-            <div className="relative mt-3">
-              <input
-                id="url"
-                className="w-full rounded-control border border-white/10 bg-black/40 px-3.5 py-3 font-sans text-base text-white placeholder:text-pencil focus:border-white/30 focus:bg-black/60 focus:outline-none transition-colors"
-                placeholder="https://youtube.com/watch?v=…"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                autoComplete="off"
-                spellCheck={false}
-                disabled={busy !== null}
-              />
-            </div>
-
-            <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
-              <span className="font-mono text-micro text-pencil">
-                {isOllama
-                  ? '⚡ Free · runs 100% on this machine'
-                  : `Sends transcript text to ${activeProviderName}. Never audio/video.`}
+            <h1 className="mt-6 font-['Playfair_Display'] text-[3.5rem] font-medium tracking-tight text-white sm:text-[4.75rem] xl:text-[5.25rem] leading-[0.96]">
+              <span className="block tracking-wide uppercase font-light text-white/95">
+                LONG VIDEO
               </span>
-              <button
-                type="submit"
-                className="btn btn-primary btn-lg"
-                disabled={busy !== null || !url.trim()}
-              >
-                {busy === 'url' ? (
-                  <span className="flex items-center gap-2">
-                    <span className="size-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                    Fetching…
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    <span>Generate Clips</span>
-                    <span className="text-white/60">→</span>
-                  </span>
-                )}
-              </button>
-            </div>
-          </form>
-
-          <AdvancedOptions
-            open={advancedOpen}
-            onToggle={() => setAdvancedOpen((v) => !v)}
-            overrides={overrides}
-            onChange={setOverrides}
-            providers={providers}
-          />
-        </section>
-
-        {/* Upload Drop Zone */}
-        <section>
-          <div
-            onDragOver={(e) => {
-              e.preventDefault()
-              setDragging(true)
-            }}
-            onDragLeave={() => setDragging(false)}
-            onDrop={(e) => {
-              e.preventDefault()
-              setDragging(false)
-              const file = e.dataTransfer.files[0]
-              if (file) submitFile(file)
-            }}
-            className={[
-              'glow-card flex min-h-36 cursor-pointer flex-col items-center justify-center gap-2 rounded-panel border border-dashed p-6 text-center transition-all duration-base group',
-              dragging
-                ? 'border-[#e5476a] bg-[rgba(109,0,26,0.2)] shadow-[0_0_30px_rgba(109,0,26,0.3)]'
-                : 'border-white/15 hover:border-white/30',
-            ].join(' ')}
-            onClick={() => fileInput.current?.click()}
-            role="button"
-            tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') fileInput.current?.click()
-            }}
-          >
-            <div className="flex size-11 items-center justify-center rounded-full border border-white/10 bg-white/5 transition-transform duration-200 group-hover:scale-110 group-hover:border-[#e5476a]/40 group-hover:bg-[#6d001a]/20">
-              <svg className="size-5 text-graphite group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-            </div>
-            <div className="mt-1">
-              <span className="text-base font-medium text-white transition-colors group-hover:text-white">
-                {busy === 'file' ? 'Uploading media…' : 'Drop video or audio here'}
+              <span className="flex items-baseline gap-3.5 mt-1.5">
+                <span className="font-['Italianno'] text-[4.2rem] sm:text-[5.8rem] xl:text-[6.4rem] font-normal lowercase tracking-normal text-[#e5476a] -translate-y-2 select-none italic">
+                  into
+                </span>
+                <span className="tracking-wide uppercase font-bold bg-gradient-to-r from-white via-white/95 to-[#ffb3c1] bg-clip-text text-transparent">
+                  VIRAL SHORTS
+                </span>
               </span>
-              <p className="mt-0.5 font-mono text-micro text-pencil">
-                MP4 · MOV · MKV · WEBM · MP3 · WAV · M4A
+            </h1>
+
+            <p className="mt-5 font-['Cormorant_Garamond'] text-xl sm:text-2xl italic text-graphite max-w-xl leading-relaxed">
+              Transform raw long-form podcasts, webinars, and streams into cinematic, high-retention vertical clips built to captivate and convert.
+            </p>
+          </div>
+
+          {/* Feature Highlights Grid filling the left dimensions */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 pt-2">
+            <div className="rounded-panel border border-white/8 bg-black/40 p-4 backdrop-blur-md transition-all hover:border-white/20 hover:bg-white/[0.03]">
+              <div className="flex size-8 items-center justify-center rounded-control bg-[#6d001a]/30 border border-[#e5476a]/20 text-[#e5476a] font-mono text-xs">
+                01
+              </div>
+              <h3 className="mt-3 font-sans text-sm font-semibold text-white">Smart Speaker Tracking</h3>
+              <p className="mt-1 font-mono text-micro text-pencil leading-relaxed">
+                Automated 9:16 re-framing keeping active speakers centered.
+              </p>
+            </div>
+
+            <div className="rounded-panel border border-white/8 bg-black/40 p-4 backdrop-blur-md transition-all hover:border-white/20 hover:bg-white/[0.03]">
+              <div className="flex size-8 items-center justify-center rounded-control bg-[#6d001a]/30 border border-[#e5476a]/20 text-[#e5476a] font-mono text-xs">
+                02
+              </div>
+              <h3 className="mt-3 font-sans text-sm font-semibold text-white">Viral Glow Captions</h3>
+              <p className="mt-1 font-mono text-micro text-pencil leading-relaxed">
+                Word-level Whisper timing with animated karaoke captions.
+              </p>
+            </div>
+
+            <div className="rounded-panel border border-white/8 bg-black/40 p-4 backdrop-blur-md transition-all hover:border-white/20 hover:bg-white/[0.03]">
+              <div className="flex size-8 items-center justify-center rounded-control bg-[#6d001a]/30 border border-[#e5476a]/20 text-[#e5476a] font-mono text-xs">
+                03
+              </div>
+              <h3 className="mt-3 font-sans text-sm font-semibold text-white">100% On-Device AI</h3>
+              <p className="mt-1 font-mono text-micro text-pencil leading-relaxed">
+                Zero telemetry, zero subscriptions, complete privacy.
               </p>
             </div>
           </div>
-          <input
-            ref={fileInput}
-            type="file"
-            className="hidden"
-            accept="video/*,audio/*"
-            onChange={(e) => {
-              const file = e.target.files?.[0]
-              if (file) submitFile(file)
-              e.target.value = ''
-            }}
-          />
-        </section>
+        </div>
+
+        {/* Right Column (High-End Input Deck + File Drop Zone) - 5 cols */}
+        <div className="space-y-5 lg:col-span-5">
+          {/* URL Form inside high-end glow-card */}
+          <section>
+            <form
+              onSubmit={submitUrl}
+              className="glow-card rounded-panel p-6 transition-all duration-200 focus-within:border-[#9e1432]/60 focus-within:shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_18px_48px_-10px_rgba(0,0,0,0.9),0_0_35px_rgba(109,0,26,0.4)]"
+            >
+              <div className="flex items-center justify-between">
+                <label htmlFor="url" className="flex items-center gap-2 font-mono text-micro font-medium text-graphite uppercase tracking-wider">
+                  <svg className="size-3.5 text-[#e5476a]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                  </svg>
+                  Paste Video Link
+                </label>
+                <span className="font-mono text-micro text-pencil">YouTube · Vimeo · MP4</span>
+              </div>
+
+              <div className="relative mt-3.5">
+                <input
+                  id="url"
+                  className="w-full rounded-control border border-white/10 bg-black/50 px-4 py-3 font-sans text-base text-white placeholder:text-pencil focus:border-white/30 focus:bg-black/70 focus:outline-none transition-colors"
+                  placeholder="https://youtube.com/watch?v=…"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  autoComplete="off"
+                  spellCheck={false}
+                  disabled={busy !== null}
+                />
+              </div>
+
+              <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
+                <span className="font-mono text-micro text-pencil">
+                  {isOllama
+                    ? '⚡ Free · runs 100% on this machine'
+                    : `Sends transcript text to ${activeProviderName}.`}
+                </span>
+                <button
+                  type="submit"
+                  className="btn btn-primary btn-lg"
+                  disabled={busy !== null || !url.trim()}
+                >
+                  {busy === 'url' ? (
+                    <span className="flex items-center gap-2">
+                      <span className="size-3.5 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                      Fetching…
+                    </span>
+                  ) : (
+                    <span className="flex items-center gap-2">
+                      <span>Generate Clips</span>
+                      <span className="text-white/60">→</span>
+                    </span>
+                  )}
+                </button>
+              </div>
+            </form>
+
+            <AdvancedOptions
+              open={advancedOpen}
+              onToggle={() => setAdvancedOpen((v) => !v)}
+              overrides={overrides}
+              onChange={setOverrides}
+              providers={providers}
+            />
+          </section>
+
+          {/* Upload Drop Zone */}
+          <section>
+            <div
+              onDragOver={(e) => {
+                e.preventDefault()
+                setDragging(true)
+              }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={(e) => {
+                e.preventDefault()
+                setDragging(false)
+                const file = e.dataTransfer.files[0]
+                if (file) submitFile(file)
+              }}
+              className={[
+                'glow-card flex min-h-36 cursor-pointer flex-col items-center justify-center gap-2.5 rounded-panel border border-dashed p-6 text-center transition-all duration-base group',
+                dragging
+                  ? 'border-[#e5476a] bg-[rgba(109,0,26,0.2)] shadow-[0_0_30px_rgba(109,0,26,0.3)]'
+                  : 'border-white/15 hover:border-white/30',
+              ].join(' ')}
+              onClick={() => fileInput.current?.click()}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') fileInput.current?.click()
+              }}
+            >
+              <div className="flex size-11 items-center justify-center rounded-full border border-white/10 bg-white/5 transition-transform duration-200 group-hover:scale-110 group-hover:border-[#e5476a]/40 group-hover:bg-[#6d001a]/20">
+                <svg className="size-5 text-graphite group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                </svg>
+              </div>
+              <div>
+                <span className="text-base font-medium text-white transition-colors group-hover:text-white">
+                  {busy === 'file' ? 'Uploading media…' : 'Drop video or audio file'}
+                </span>
+                <p className="mt-0.5 font-mono text-micro text-pencil">
+                  MP4 · MOV · MKV · WEBM · MP3 · WAV · M4A
+                </p>
+              </div>
+            </div>
+            <input
+              ref={fileInput}
+              type="file"
+              className="hidden"
+              accept="video/*,audio/*"
+              onChange={(e) => {
+                const file = e.target.files?.[0]
+                if (file) submitFile(file)
+                e.target.value = ''
+              }}
+            />
+          </section>
+        </div>
       </div>
 
       {error && (
