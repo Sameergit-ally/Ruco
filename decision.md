@@ -162,6 +162,21 @@ Every decision must:
 - Rules check: Rule 2 (verify then move forward), Rule 18 (zero cost), Rule 22 (record configuration/dependency decisions in decision.md).
 - Review trigger: If faster-whisper or CTranslate2 releases a Windows cuDNN bugfix resolving `0xC0000409` on RTX 2050, or if users report issues on different architectures.
 
+## D-009: Adopt the Resolve visual system for the frontend
+
+- Date: 2026-10-13
+- Status: Accepted
+- Context: The UI is currently a dark theme with a serif display face. The project wants the light, dot-matrix "Resolve" look in the CAESAR palette (black #000000, burgundy #6D001A, white #FFFFFF) instead of dark charcoal and orange.
+- Options considered:
+  1. Keep the dark theme: no work, but no change in identity.
+  2. Port Resolve with Ruvo's dependencies (Radix, cva, lucide, sonner): closest to reference, but adds five npm dependencies.
+  3. Port Resolve with CSS classes and native controls: same look, zero new npm dependencies.
+- Decision: Option 3. Add three OFL variable fonts (Doto, Geist, Geist Mono; about 58 KB) as bundled assets in `frontend/src/fonts/`; remove Archivo and Instrument Serif (about 800 KB).
+- Rationale: Rule 22 (no new dependency without a decision), Rule 18 (zero cost), Rule 19 (local first: fonts bundled, nothing fetched at runtime). Fonts verified as OFL-1.1.
+- Consequences: Burgundy carries white text (black on burgundy is 1.7:1) and black panels use the lighter `highlighter-bright`. Native selects and CSS components are used without Radix.
+- Rules check: Rule 6 (no dead code), 18 (zero cost), 19 (local first), 20 (OFL licence shipped with fonts), 22, 23.
+- Review trigger: If a future feature strictly requires complex modal/popover primitives, or if canvas/WebGL performance needs tuning on lower-end devices.
+
 ---
 
 ## Pending decisions
@@ -175,4 +190,5 @@ These are not decided yet. Do not assume an answer. Each needs a decision entry 
 - Final license for `my-project/`
 - Skate: verify its license before reusing anything
 - Verify AutoClip's exact install commands from its README
+
 

@@ -5,9 +5,8 @@ import { formatTimecode, type Word } from '../api'
 /**
  * Trim handles that snap to word boundaries.
  *
- * Snapping is the whole point: a cut placed mid-word is always wrong, and free
- * dragging makes it the default outcome. The handles move continuously and
- * settle onto the nearest word edge on release.
+ * Sits in a rounded sheet container with hairline-strong density bars,
+ * a highlighter-wash active trim window, and ink grab handles.
  */
 export function TrimBar({
   words,
@@ -46,8 +45,6 @@ export function TrimBar({
       for (const candidate of candidates) {
         if (Math.abs(candidate - t) < Math.abs(best - t)) best = candidate
       }
-      // Only snap when a word edge is genuinely nearby; otherwise the handle
-      // would jump somewhere the user didn't point at.
       return Math.abs(best - t) < 0.5 ? best : t
     },
     [words],
@@ -100,28 +97,31 @@ export function TrimBar({
   return (
     <div className="select-none">
       <div className="flex items-baseline justify-between">
-        <span className="eyebrow">Trim</span>
-        <span className="numeric text-xs text-ink-400">
+        <span className="label">Trim</span>
+        <span className="font-mono text-micro tabular text-graphite">
           {formatTimecode(local.start)} → {formatTimecode(local.end)}
-          <span className="ml-3 text-sodium-500">{duration.toFixed(1)}s</span>
+          <span className="ml-3 font-medium text-ink">{duration.toFixed(1)}s</span>
         </span>
       </div>
 
-      <div ref={track} className="relative mt-3 h-14 cursor-ew-resize bg-ink-850">
-        {/* Word density as a crude waveform stand-in: taller where speech is
-            dense, which is enough to aim a cut by. */}
+      <div
+        ref={track}
+        className="relative mt-2 h-14 cursor-ew-resize overflow-hidden rounded-control border border-hairline bg-sheet"
+      >
+        {/* Word density as a crude waveform stand-in */}
         <div className="absolute inset-0 flex items-end gap-px overflow-hidden px-px opacity-60">
           {buildDensity(words, windowStart, windowEnd, 90).map((value, index) => (
             <div
               key={index}
-              className="flex-1 bg-ink-700"
+              className="flex-1 bg-hairline-strong"
               style={{ height: `${12 + value * 78}%` }}
             />
           ))}
         </div>
 
+        {/* Selected window (highlighter-wash) */}
         <div
-          className="absolute inset-y-0 bg-sodium-700/25"
+          className="absolute inset-y-0 bg-highlighter-wash"
           style={{ left: `${left * 100}%`, right: `${(1 - right) * 100}%` }}
         />
 
@@ -148,11 +148,11 @@ function Handle({
         onGrab()
       }}
       aria-label={`Drag ${edge} of clip`}
-      className="absolute inset-y-0 w-3 -translate-x-1/2 cursor-ew-resize"
+      className="absolute inset-y-0 w-3 -translate-x-1/2 cursor-ew-resize focus-visible:outline-none"
       style={{ left: `${position * 100}%` }}
     >
-      <span className="absolute inset-y-0 left-1/2 w-0.5 -translate-x-1/2 bg-sodium-500" />
-      <span className="absolute left-1/2 top-1/2 h-6 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-sodium-400" />
+      <span className="absolute inset-y-0 left-1/2 w-0.5 -translate-x-1/2 bg-ink" />
+      <span className="absolute left-1/2 top-1/2 h-6 w-1.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-ink" />
     </button>
   )
 }

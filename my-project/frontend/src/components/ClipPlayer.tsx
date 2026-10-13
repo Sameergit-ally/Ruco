@@ -22,10 +22,8 @@ function readStoredVolume(): number {
 /**
  * 9:16 preview of one clip, with a CSS approximation of the burned captions.
  *
- * The approximation is deliberate: rendering the real ASS would mean shipping a
- * subtitle engine to the browser. What matters at review time is timing, word
- * grouping, and whether the style reads at all — the final look comes from
- * libass at export.
+ * Sits on a rounded void (black) stage with a frosted floating play button,
+ * hairline progress track, and signal (highlighter) progress bar.
  */
 export function ClipPlayer({
   src,
@@ -68,8 +66,6 @@ export function ClipPlayer({
     }
   }
 
-  // Kept in sync imperatively: volume and muted are element properties, not
-  // attributes, so React won't apply them from JSX on later renders.
   useEffect(() => {
     const element = video.current
     if (!element) return
@@ -78,8 +74,6 @@ export function ClipPlayer({
     window.localStorage.setItem(VOLUME_KEY, String(volume))
   }, [volume, muted])
 
-  // Re-seek whenever the clip or its trim changes, so the preview always starts
-  // where the export will.
   useEffect(() => {
     const element = video.current
     if (!element) return
@@ -122,16 +116,12 @@ export function ClipPlayer({
 
   const cropStyle = cropWindowStyle(cropPath, elapsed)
   const [aspectW, aspectH] = ASPECTS[ratio] ?? ASPECTS['9:16']
-  // Height alone can't bound the box: with width:100% and an aspect-ratio, a
-  // max-height clamp shortens the element without narrowing it, so the rendered
-  // shape stops matching the ratio — a 9:16 preview ends up looking square.
-  // Deriving a matching max-width makes the box shrink along both axes instead.
   const maxWidth = `${((MAX_HEIGHT_VH * aspectW) / aspectH).toFixed(3)}vh`
 
   return (
     <div className="mx-auto flex w-full flex-col items-stretch" style={{ maxWidth }}>
       <div
-        className="relative w-full overflow-hidden bg-ink-850"
+        className="relative w-full overflow-hidden rounded-control bg-void"
         style={{ aspectRatio: `${aspectW} / ${aspectH}` }}
         onClick={toggle}
         role="button"
@@ -159,15 +149,16 @@ export function ClipPlayer({
 
         {!playing && (
           <div className="pointer-events-none absolute inset-0 grid place-items-center">
-            <span className="grid size-16 place-items-center rounded-full bg-ink-900/70 pl-1 text-2xl text-ink-100 backdrop-blur-[2px]">
+            <span className="grid size-16 place-items-center rounded-full frost pl-1 text-2xl text-ink">
               ▶
             </span>
           </div>
         )}
       </div>
 
-      <div className="mt-3 flex w-full items-center gap-4">
-        <button onClick={toggle} className="btn btn-quiet -ml-1 w-14 justify-start">
+      {/* Controls row */}
+      <div className="mt-3 flex w-full items-center gap-3">
+        <button onClick={toggle} className="btn btn-quiet btn-sm -ml-1 w-14 justify-start">
           {playing ? 'Pause' : 'Play'}
         </button>
 
@@ -176,49 +167,52 @@ export function ClipPlayer({
           muted={muted}
           onVolume={(next) => {
             setVolume(next)
-            // Dragging the slider up is an unambiguous "I want to hear this".
             if (next > 0) setMuted(false)
           }}
           onToggleMute={() => setMuted((current) => !current)}
         />
 
-        <div className="h-px flex-1 bg-ink-800">
+        {/* Progress bar */}
+        <div className="relative h-1 flex-1 overflow-hidden rounded-full bg-hairline-strong">
           <div
-            className="h-px origin-left bg-sodium-500"
+            className="h-full origin-left bg-highlighter transition-transform duration-base ease-(--ease-standard)"
             style={{ transform: `scaleX(${elapsed / duration})` }}
           />
         </div>
-        <span className="numeric text-xs text-ink-500">
+
+        <span className="font-mono text-micro tabular text-graphite">
           {formatTimecode(elapsed)} / {formatTimecode(duration)}
         </span>
       </div>
 
       {(muted || volume === 0) && (
-        <p className="mt-2 text-xs text-sodium-500">
-          Audio is muted — click the speaker to unmute.
-        </p>
+        <div className="mt-2 flex items-center gap-2">
+          <span className="badge badge-check">Muted</span>
+          <span className="text-small text-graphite">
+            Audio is muted — click the speaker to unmute.
+          </span>
+        </div>
       )}
 
-      <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1">
-        <button onClick={runAudioCheck} disabled={checking} className="btn btn-quiet -ml-1">
+      <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1">
+        <button onClick={runAudioCheck} disabled={checking} className="btn btn-quiet btn-sm -ml-1">
           {checking ? 'Listening…' : 'Test audio'}
         </button>
         <button
           onClick={() => setNativeControls((current) => !current)}
-          className="btn btn-quiet"
+          className="btn btn-quiet btn-sm"
         >
           {nativeControls ? 'Hide browser controls' : 'Browser controls'}
         </button>
       </div>
 
       {audioCheck && (
-        <p
-          className={`mt-1 max-w-prose text-xs leading-relaxed ${
-            audioCheck.ok ? 'text-ink-400' : 'text-sodium-500'
-          }`}
-        >
-          {audioCheck.detail}
-        </p>
+        <div className="mt-2 flex items-start gap-2">
+          {!audioCheck.ok && <span className="badge badge-check shrink-0">No signal</span>}
+          <p className="max-w-prose text-small leading-relaxed text-graphite">
+            {audioCheck.detail}
+          </p>
+        </div>
       )}
     </div>
   )
@@ -230,18 +224,6 @@ interface AudioCheck {
   detail: string
 }
 
-/**
- * Measure the real signal level leaving the video element.
- *
- * "Is it muted?" is otherwise unanswerable from inside the page: a muted tab, a
- * silenced app in the OS mixer, and audio routed to a disconnected output all
- * look identical, and none of them are distinguishable from a bug in here.
- *
- * ``captureStream`` taps the element's output rather than rerouting it, so
- * measuring cannot itself cause the silence being investigated. The analyser is
- * deliberately never connected to the context destination — doing so would play
- * the audio a second time.
- */
 async function measureOutputLevel(element: HTMLVideoElement): Promise<AudioCheck> {
   const capture =
     (element as HTMLVideoElement & { captureStream?: () => MediaStream }).captureStream ??
@@ -307,14 +289,6 @@ async function measureOutputLevel(element: HTMLVideoElement): Promise<AudioCheck
   }
 }
 
-/**
- * Position the source video so the preview box shows the crop the renderer will.
- *
- * Everything is expressed as a percentage of the crop window, which makes it
- * independent of how large the preview happens to be drawn. Returns null when
- * there is no crop path — the caller then falls back to a centre crop, which is
- * what the renderer does in that case too.
- */
 function cropWindowStyle(
   cropPath: CropPath | null | undefined,
   elapsed: number,
@@ -325,8 +299,6 @@ function cropWindowStyle(
     cropPath.segments.find((s) => elapsed >= s.start_s && elapsed < s.end_s) ??
     cropPath.segments[cropPath.segments.length - 1]
 
-  // A fitted segment shows the whole frame over a blur rather than cropping.
-  // Letting it fall through to object-contain is closer than any crop would be.
   if (segment.fit) return null
 
   const { x, y } = interpolate(segment.keyframes, elapsed)
@@ -340,7 +312,6 @@ function cropWindowStyle(
   }
 }
 
-/** Piecewise-linear lookup, matching croppath.axis_expression on the server. */
 function interpolate(
   keyframes: { t: number; x: number; y: number }[],
   t: number,
@@ -365,14 +336,6 @@ function interpolate(
   return { x: last.x, y: last.y }
 }
 
-/**
- * Mute toggle and volume slider.
- *
- * Not optional chrome: without it there is no way to see whether the preview is
- * silent because it's muted or because something upstream is wrong, and no way
- * to do anything about it. The slider stays visible rather than hiding behind a
- * hover, because "is this thing muted?" is a question you ask at a glance.
- */
 function VolumeControl({
   volume,
   muted,
@@ -387,10 +350,10 @@ function VolumeControl({
   const silent = muted || volume === 0
 
   return (
-    <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5">
       <button
         onClick={onToggleMute}
-        className={`btn btn-quiet px-1 ${silent ? 'text-sodium-500' : ''}`}
+        className={`btn btn-quiet btn-sm px-1 ${silent ? 'text-amber' : 'text-graphite'}`}
         aria-label={silent ? 'Unmute' : 'Mute'}
         title={silent ? 'Unmute' : 'Mute'}
       >
@@ -404,7 +367,7 @@ function VolumeControl({
         value={silent ? 0 : volume}
         onChange={(e) => onVolume(Number(e.target.value))}
         aria-label="Volume"
-        className="h-1 w-20 cursor-pointer appearance-none rounded-full bg-ink-700 accent-sodium-500"
+        className="h-1 w-16 cursor-pointer appearance-none rounded-full bg-hairline-strong accent-ink"
       />
     </div>
   )
@@ -412,7 +375,7 @@ function VolumeControl({
 
 function SpeakerIcon({ silent, level }: { silent: boolean; level: number }) {
   return (
-    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden>
       <path
         d="M11 5 6 9H3v6h3l5 4V5Z"
         fill="currentColor"
@@ -449,7 +412,6 @@ function SpeakerIcon({ silent, level }: { silent: boolean; level: number }) {
   )
 }
 
-/** Group words the way the ASS generator does, then show the active group. */
 function CaptionOverlay({
   words,
   time,

@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 
 import { api, type ProviderStatus, type Settings as SettingsData, type SystemStatus } from '../api'
 import { ErrorNote } from '../components/ErrorNote'
+import { FallingCat } from '../components/FallingCat'
 
 const SECRET_LABELS: Record<string, string> = {
   anthropic: 'Anthropic API key',
@@ -36,68 +37,70 @@ export function Settings() {
     }
   }
 
-  if (!settings) return <p className="pt-24 text-sm text-ink-500">Loading…</p>
+  if (!settings) return <FallingCat className="min-h-[50vh]" />
 
   return (
-    <div className="max-w-4xl pt-14">
-      <div className="rise flex items-baseline justify-between border-b border-ink-800 pb-5">
-        <h1 className="font-display text-[clamp(2rem,4vw,3rem)] leading-none text-ink-100">
+    <div className="max-w-4xl pt-2 sm:pt-4">
+      {/* Masthead */}
+      <div className="flex items-baseline justify-between border-b border-hairline pb-4">
+        <h1 className="font-dot text-title font-black text-ink">
           Settings
         </h1>
-        <span
-          className="text-xs text-signal-good transition-opacity duration-300"
-          style={{ opacity: saved ? 1 : 0 }}
-        >
-          saved
-        </span>
+        {saved && (
+          <span className="badge badge-sure">
+            Saved
+          </span>
+        )}
       </div>
 
       {error && (
-        <div className="mt-6">
+        <div className="mt-4">
           <ErrorNote error={error} onDismiss={() => setError(null)} />
         </div>
       )}
 
       {settings.insecure_secret_storage && (
-        <p className="mt-6 border-l-2 border-sodium-600 pl-4 text-sm leading-relaxed text-ink-300">
+        <p className="mt-4 border-l-2 border-amber bg-amber-wash px-item py-tight text-small leading-relaxed text-amber">
           No OS keyring is available on this machine, so API keys are stored in plain text
-          in <code className="text-ink-200">config.json</code>. On headless Linux, installing
-          a Secret Service provider or <code className="text-ink-200">keyrings.alt</code>{' '}
+          in <code className="rounded-control bg-ink/6 px-1.5 font-mono text-micro text-ink">config.json</code>. On headless Linux, installing
+          a Secret Service provider or <code className="rounded-control bg-ink/6 px-1.5 font-mono text-micro text-ink">keyrings.alt</code>{' '}
           fixes this.
         </p>
       )}
 
+      {/* AI Provider Section */}
       <Section title="AI provider" note="Which model picks the clips.">
-        <div className="space-y-1">
-          {providers.map((provider) => (
-            <button
-              key={provider.name}
-              onClick={() => patch({ active_provider: provider.name })}
-              className={[
-                'block w-full border-l-2 py-3 pl-3 text-left transition-colors duration-200',
-                provider.name === settings.active_provider
-                  ? 'border-sodium-500 bg-ink-850/60'
-                  : 'border-transparent hover:border-ink-700 hover:bg-ink-850/30',
-              ].join(' ')}
-            >
-              <div className="flex items-baseline justify-between gap-4">
-                <span className="text-sm text-ink-100">{provider.name}</span>
-                <span
-                  className={`text-xs ${provider.available ? 'text-signal-good' : 'text-ink-500'}`}
-                >
-                  {provider.available ? 'reachable' : provider.detail || 'unavailable'}
-                </span>
-              </div>
-              {provider.models.length > 0 && (
-                <span className="numeric mt-1 block truncate text-xs text-ink-600">
-                  {provider.models.slice(0, 6).join(' · ')}
-                </span>
-              )}
-            </button>
-          ))}
+        <div className="grid gap-tight sm:grid-cols-2">
+          {providers.map((provider) => {
+            const checked = provider.name === settings.active_provider
+            return (
+              <label key={provider.name} className="tile">
+                <input
+                  type="radio"
+                  name="active_provider"
+                  checked={checked}
+                  onChange={() => patch({ active_provider: provider.name })}
+                  className="sr-only"
+                />
+                <div className="flex w-full items-baseline justify-between gap-2">
+                  <span className="font-mono text-small font-semibold">
+                    {provider.name}
+                  </span>
+                  <span className="font-mono text-micro">
+                    {provider.available ? 'Reachable' : provider.detail || 'Unavailable'}
+                  </span>
+                </div>
+                {provider.models.length > 0 && (
+                  <span className="font-mono text-micro tabular text-graphite">
+                    {provider.models.slice(0, 4).join(' · ')}
+                  </span>
+                )}
+              </label>
+            )
+          })}
         </div>
 
-        <div className="mt-6 grid gap-5 sm:grid-cols-2">
+        <div className="mt-6 grid gap-item sm:grid-cols-2">
           <Field
             label="Model"
             value={settings.providers[settings.active_provider]?.model ?? ''}
@@ -132,8 +135,9 @@ export function Settings() {
         </div>
       </Section>
 
+      {/* Keys Section */}
       <Section title="Keys" note="Stored in your OS keyring. Never sent anywhere but the provider.">
-        <div className="space-y-4">
+        <div className="space-y-3">
           {Object.entries(SECRET_LABELS).map(([key, label]) => (
             <SecretField
               key={key}
@@ -147,8 +151,9 @@ export function Settings() {
         </div>
       </Section>
 
+      {/* Transcription Section */}
       <Section title="Transcription">
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-item sm:grid-cols-2">
           <Select
             label="Whisper model"
             value={settings.whisper.model}
@@ -164,30 +169,38 @@ export function Settings() {
           />
         </div>
 
-        <label className="mt-5 flex items-start gap-3 text-sm text-ink-200">
-          <input
-            type="checkbox"
-            checked={settings.whisper.diarization}
-            disabled={!system?.diarization_available}
-            onChange={(e) =>
-              patch({ whisper: { ...settings.whisper, diarization: e.target.checked } })
-            }
-            className="mt-0.5 size-4 accent-sodium-500"
-          />
-          <span>
-            Identify speakers
-            {!system?.diarization_available && (
-              <span className="mt-1 block text-xs text-ink-500">
-                Needs the diarization extra:{' '}
-                <code className="text-ink-300">uv pip install &apos;autoclip[diarization]&apos;</code>
-              </span>
-            )}
-          </span>
-        </label>
+        <div className="mt-4">
+          <label className="flex items-start gap-3 font-mono text-small text-graphite">
+            <button
+              type="button"
+              role="switch"
+              aria-checked={settings.whisper.diarization}
+              disabled={!system?.diarization_available}
+              onClick={() =>
+                patch({ whisper: { ...settings.whisper, diarization: !settings.whisper.diarization } })
+              }
+              className="switch"
+            >
+              <span />
+            </button>
+            <span>
+              Identify speakers
+              {!system?.diarization_available && (
+                <span className="mt-1 block text-micro text-pencil">
+                  Needs the diarization extra:{' '}
+                  <code className="rounded-control bg-ink/6 px-1.5 font-mono text-micro text-ink">
+                    uv pip install 'autoclip[diarization]'
+                  </code>
+                </span>
+              )}
+            </span>
+          </label>
+        </div>
       </Section>
 
+      {/* Clips Section */}
       <Section title="Clips">
-        <div className="grid gap-5 sm:grid-cols-3">
+        <div className="grid gap-item sm:grid-cols-3">
           <NumberField
             label="Min length (s)"
             value={settings.clips.min_duration_s}
@@ -206,8 +219,9 @@ export function Settings() {
         </div>
       </Section>
 
+      {/* Ingest Section */}
       <Section title="Ingest">
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-item sm:grid-cols-2">
           <Select
             label="YouTube cookies from"
             hint="YouTube blocks most anonymous downloads. Sign in in that browser and close it before downloading."
@@ -221,8 +235,9 @@ export function Settings() {
         </div>
       </Section>
 
+      {/* Export Section */}
       <Section title="Export">
-        <div className="grid gap-5 sm:grid-cols-2">
+        <div className="grid gap-item sm:grid-cols-2">
           <Select
             label="Default ratio"
             value={settings.export.ratio}
@@ -236,50 +251,75 @@ export function Settings() {
           />
         </div>
 
-        <label className="mt-5 flex items-start gap-3 text-sm text-ink-200">
-          <input
-            type="checkbox"
-            checked={settings.export.prefer_hardware_encoder}
-            onChange={(e) =>
-              patch({
-                export: { ...settings.export, prefer_hardware_encoder: e.target.checked },
-              })
-            }
-            className="mt-0.5 size-4 accent-sodium-500"
-          />
-          <span>
-            Use GPU encoding when available
-            {system && !system.nvenc_works && (
-              <span className="mt-1 block text-xs text-ink-500">
-                Not usable on this machine — exports will use the CPU encoder. Same quality,
-                slower.
-              </span>
-            )}
-          </span>
-        </label>
+        <div className="mt-4 space-y-3">
+          <label className="flex items-start gap-3 font-mono text-small text-graphite">
+            <button
+              type="button"
+              role="switch"
+              aria-checked={settings.export.prefer_hardware_encoder}
+              onClick={() =>
+                patch({
+                  export: { ...settings.export, prefer_hardware_encoder: !settings.export.prefer_hardware_encoder },
+                })
+              }
+              className="switch"
+            >
+              <span />
+            </button>
+            <span>
+              Use GPU encoding when available
+              {system && !system.nvenc_works && (
+                <span className="mt-1 block text-micro text-pencil">
+                  Not usable on this machine — exports will use the CPU encoder.
+                </span>
+              )}
+            </span>
+          </label>
 
-        <label className="mt-4 flex items-center gap-3 text-sm text-ink-200">
-          <input
-            type="checkbox"
-            checked={settings.export.write_srt}
-            onChange={(e) => patch({ export: { ...settings.export, write_srt: e.target.checked } })}
-            className="size-4 accent-sodium-500"
-          />
-          Also write an .srt sidecar
-        </label>
+          <label className="flex items-center gap-3 font-mono text-small text-graphite">
+            <button
+              type="button"
+              role="switch"
+              aria-checked={settings.export.write_srt}
+              onClick={() =>
+                patch({ export: { ...settings.export, write_srt: !settings.export.write_srt } })
+              }
+              className="switch"
+            >
+              <span />
+            </button>
+            Also write an .srt sidecar
+          </label>
+        </div>
       </Section>
 
+      {/* This Machine Section */}
       {system && (
         <Section title="This machine">
-          <dl className="grid gap-x-8 gap-y-3 text-sm sm:grid-cols-2">
+          <dl className="grid gap-x-group gap-y-2.5 text-small sm:grid-cols-2">
             <Row label="Platform" value={system.platform} />
             <Row label="Python" value={system.python_version} />
-            <Row label="ffmpeg" value={system.ffmpeg_version ?? 'not found'} />
+            <Row
+              label="ffmpeg"
+              value={system.ffmpeg_version ?? 'not found'}
+              badge={system.ffmpeg_version ? 'sure' : 'error'}
+              badgeText={system.ffmpeg_version ? 'Found' : 'Not found'}
+            />
             <Row label="Acceleration" value={system.accel.toUpperCase()} />
             <Row label="Device" value={system.gpu_name ?? '—'} />
             <Row label="Whisper compute" value={system.compute_type} />
-            <Row label="GPU encode" value={system.nvenc_works ? 'available' : 'unavailable'} />
-            <Row label="Captions" value={system.has_libass ? 'libass present' : 'libass missing'} />
+            <Row
+              label="GPU encode"
+              value=""
+              badge={system.nvenc_works ? 'sure' : 'check'}
+              badgeText={system.nvenc_works ? 'Available' : 'Unavailable'}
+            />
+            <Row
+              label="Captions"
+              value=""
+              badge={system.has_libass ? 'sure' : 'error'}
+              badgeText={system.has_libass ? 'libass present' : 'libass missing'}
+            />
           </dl>
         </Section>
       )}
@@ -297,26 +337,50 @@ function Section({
   children: React.ReactNode
 }) {
   return (
-    <section className="rise mt-14">
-      <div className="border-b border-ink-800 pb-2">
-        <h2 className="eyebrow">{title}</h2>
-        {note && <p className="mt-1 text-xs text-ink-500">{note}</p>}
+    <section className="mt-10 border-t border-hairline-strong pt-6">
+      <div className="pb-3">
+        <h2 className="text-heading font-semibold text-ink">{title}</h2>
+        {note && <p className="mt-1 text-small text-graphite">{note}</p>}
       </div>
-      <div className="mt-5">{children}</div>
+      <div className="mt-3">{children}</div>
     </section>
   )
 }
 
-function Row({ label, value }: { label: string; value: string }) {
+function Row({
+  label,
+  value,
+  badge,
+  badgeText,
+}: {
+  label: string
+  value: string
+  badge?: 'sure' | 'check' | 'error'
+  badgeText?: string
+}) {
   return (
-    <div className="flex items-baseline justify-between gap-4 border-b border-ink-850 pb-2">
-      <dt className="text-ink-500">{label}</dt>
-      <dd className="numeric truncate text-right text-ink-200">{value}</dd>
+    <div className="flex items-baseline justify-between gap-4 border-b border-hairline pb-2">
+      <dt className="text-graphite">{label}</dt>
+      <dd className="font-mono text-small tabular text-ink flex items-center gap-2">
+        {value && <span>{value}</span>}
+        {badge && (
+          <span
+            className={
+              badge === 'sure'
+                ? 'badge badge-sure'
+                : badge === 'check'
+                  ? 'badge badge-check'
+                  : 'badge badge-error'
+            }
+          >
+            {badgeText}
+          </span>
+        )}
+      </dd>
     </div>
   )
 }
 
-/** Commits on blur rather than per keystroke, so a PUT isn't fired per letter. */
 function Field({
   label,
   hint,
@@ -335,9 +399,9 @@ function Field({
 
   return (
     <label className="block">
-      <span className="eyebrow">{label}</span>
+      <span className="label">{label}</span>
       <input
-        className="field mt-1 text-sm"
+        className="field mt-1"
         value={draft}
         placeholder={placeholder}
         onChange={(e) => setDraft(e.target.value)}
@@ -345,7 +409,7 @@ function Field({
         onKeyDown={(e) => e.key === 'Enter' && e.currentTarget.blur()}
         spellCheck={false}
       />
-      {hint && <span className="mt-1.5 block text-xs leading-snug text-ink-500">{hint}</span>}
+      {hint && <span className="mt-1 block text-micro text-pencil">{hint}</span>}
     </label>
   )
 }
@@ -364,10 +428,10 @@ function NumberField({
 
   return (
     <label className="block">
-      <span className="eyebrow">{label}</span>
+      <span className="label">{label}</span>
       <input
         type="number"
-        className="field numeric mt-1 text-sm"
+        className="field tabular mt-1"
         value={draft}
         onChange={(e) => setDraft(e.target.value)}
         onBlur={() => {
@@ -397,19 +461,19 @@ function Select({
 }) {
   return (
     <label className="block">
-      <span className="eyebrow">{label}</span>
+      <span className="label">{label}</span>
       <select
-        className="field mt-1 cursor-pointer text-sm"
+        className="field mt-1 cursor-pointer"
         value={value}
         onChange={(e) => onChange(e.target.value)}
       >
         {options.map((option) => (
-          <option key={option} value={option} className="bg-ink-850">
+          <option key={option} value={option}>
             {labels[option] ?? option}
           </option>
         ))}
       </select>
-      {hint && <span className="mt-1.5 block text-xs leading-snug text-ink-500">{hint}</span>}
+      {hint && <span className="mt-1 block text-micro text-pencil">{hint}</span>}
     </label>
   )
 }
@@ -457,15 +521,15 @@ function SecretField({
   }
 
   return (
-    <div className="flex flex-wrap items-end gap-3">
+    <div className="flex flex-wrap items-end gap-item">
       <label className="min-w-56 flex-1">
-        <span className="eyebrow">
-          {label}
-          {present && <span className="ml-2 text-signal-good">set</span>}
+        <span className="label flex items-center justify-between">
+          <span>{label}</span>
+          {present && <span className="badge badge-sure">Set</span>}
         </span>
         <input
           type="password"
-          className="field mt-1 text-sm"
+          className="field mt-1 font-mono"
           value={value}
           placeholder={present ? '••••••••••••' : 'paste to add'}
           onChange={(e) => setValue(e.target.value)}
@@ -473,7 +537,11 @@ function SecretField({
           autoComplete="off"
         />
       </label>
-      <button onClick={save} disabled={!value.trim() || busy} className="btn btn-ghost">
+      <button
+        onClick={save}
+        disabled={!value.trim() || busy}
+        className="btn btn-secondary"
+      >
         Save
       </button>
       {present && (

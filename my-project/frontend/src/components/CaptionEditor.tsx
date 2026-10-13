@@ -5,9 +5,7 @@ import { formatTimecode, type Word } from '../api'
 /**
  * Word-level caption editing.
  *
- * The job here is fixing what Whisper misheard — names, jargon, acronyms. Only
- * the text is editable; timings stay locked to the measured audio, because a
- * hand-typed timestamp is how captions drift out of sync.
+ * Sits inside a quote box on sheet, with hairline rules and highlighter-wash word hovers.
  */
 export function CaptionEditor({
   words,
@@ -38,7 +36,7 @@ export function CaptionEditor({
 
   if (words.length === 0) {
     return (
-      <p className="text-sm text-ink-500">
+      <p className="font-mono text-small text-pencil">
         No transcript for this clip yet.
       </p>
     )
@@ -46,14 +44,13 @@ export function CaptionEditor({
 
   return (
     <div>
-      <div className="flex items-baseline justify-between border-b border-ink-800 pb-2">
-        <span className="eyebrow">Transcript</span>
-        <span className="numeric text-xs text-ink-600">{words.length} words</span>
+      <div className="flex items-baseline justify-between pb-2">
+        <span className="label">Transcript</span>
+        <span className="font-mono text-micro tabular text-pencil">{words.length} words</span>
       </div>
 
-      {/* Words flow as text, not as a list of rows — reading it back is the
-          main way you notice a mistranscription. */}
-      <div className="mt-4 max-h-[38vh] overflow-y-auto pr-1 text-[0.9375rem] leading-[1.9]">
+      {/* Words flow inside a quote container */}
+      <div className="quote max-h-[38vh] overflow-y-auto pr-1">
         {words.map((word, index) =>
           editing === index ? (
             <input
@@ -75,7 +72,7 @@ export function CaptionEditor({
                   }
                 }
               }}
-              className="mr-1 w-[8ch] border-b border-sodium-500 bg-transparent px-0.5 text-ink-100 outline-none"
+              className="mr-1 w-[8ch] border-b-2 border-ink bg-transparent font-mono text-small text-ink outline-none"
               style={{ width: `${Math.max(4, draft.length + 1)}ch` }}
             />
           ) : (
@@ -86,7 +83,7 @@ export function CaptionEditor({
                 setEditing(index)
               }}
               title={formatTimecode(word.start)}
-              className="mr-1 rounded-[2px] px-0.5 text-ink-200 transition-colors duration-150 hover:bg-sodium-700/25 hover:text-ink-100"
+              className="mr-1 rounded-[2px] px-0.5 text-graphite transition-colors duration-fast hover:bg-highlighter-wash hover:text-ink focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ink"
             >
               {word.text}
             </button>
@@ -94,13 +91,21 @@ export function CaptionEditor({
         )}
       </div>
 
-      <div className="mt-4 flex items-center gap-4">
-        <button onClick={onSave} disabled={!dirty || saving} className="btn btn-ghost">
+      <div className="mt-3 flex items-center gap-3">
+        <button
+          onClick={onSave}
+          disabled={!dirty || saving}
+          className="btn btn-secondary btn-sm"
+        >
           {saving ? 'Saving…' : 'Save edits'}
         </button>
-        <span className="text-xs text-ink-500">
-          {dirty ? 'Unsaved changes' : 'Click any word to correct it'}
-        </span>
+        {dirty ? (
+          <span className="badge badge-check">Unsaved changes</span>
+        ) : (
+          <span className="font-mono text-micro text-pencil">
+            Click any word to correct it
+          </span>
+        )}
       </div>
     </div>
   )

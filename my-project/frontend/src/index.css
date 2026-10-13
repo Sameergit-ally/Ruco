@@ -1,94 +1,167 @@
 @import 'tailwindcss';
 
 /* --------------------------------------------------------------------------
-   AutoClip — darkroom edit-suite
+   Ruco: "Resolve" design system, ported from Ruvo.
 
-   The room this tool lives in is a darkroom: warm charcoal, one sodium-vapour
-   accent, hairline rules instead of cards. Neutrals are tinted toward the
-   accent hue (55°) rather than the usual blue-black, which is what stops it
-   reading as a generic dark dashboard.
+   Noise resolves into rows: white paper, true black ink, dot-matrix
+   imagery, and one burgundy signal. The signal (`highlighter`) means "found,
+   proven or chosen". It is always a background behind WHITE text (black on
+   burgundy is only 1.7:1), never a text colour or a decoration.
+   Palette: CAESAR (black #000000, burgundy #6D001A, white #FFFFFF).
+
+   Fonts are bundled (OFL) and loaded from ./fonts: Ruco is local-first and
+   fetches nothing at runtime.
    -------------------------------------------------------------------------- */
 
 @font-face {
-  font-family: 'Instrument Serif';
-  src: url('./fonts/InstrumentSerif-Regular.ttf') format('truetype');
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Instrument Serif';
-  src: url('./fonts/InstrumentSerif-Italic.ttf') format('truetype');
-  font-weight: 400;
-  font-style: italic;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: 'Archivo';
-  src: url('./fonts/Archivo-Variable.ttf') format('truetype-variations');
+  font-family: 'Doto';
+  src: url('./fonts/Doto-Variable.woff2') format('woff2-variations');
   font-weight: 100 900;
-  font-stretch: 62% 125%;
   font-style: normal;
   font-display: swap;
 }
 
-@theme {
-  --font-display: 'Instrument Serif', Georgia, serif;
-  --font-sans: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+@font-face {
+  font-family: 'Geist';
+  src: url('./fonts/Geist-Variable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 
-  /* Warm charcoals. Never pure black — nothing in a real room is. */
-  --color-ink-900: oklch(0.145 0.011 55);
-  --color-ink-850: oklch(0.175 0.012 55);
-  --color-ink-800: oklch(0.208 0.013 55);
-  --color-ink-700: oklch(0.262 0.014 55);
-  --color-ink-600: oklch(0.335 0.014 55);
-  --color-ink-400: oklch(0.545 0.013 58);
-  --color-ink-300: oklch(0.678 0.012 60);
-  --color-ink-200: oklch(0.812 0.010 62);
-  --color-ink-100: oklch(0.935 0.008 65);
+@font-face {
+  font-family: 'Geist Mono';
+  src: url('./fonts/GeistMono-Variable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 
-  /* Sodium vapour. One accent, used sparingly, never as a gradient. */
-  --color-sodium-400: oklch(0.845 0.132 68);
-  --color-sodium-500: oklch(0.762 0.168 55);
-  --color-sodium-600: oklch(0.648 0.164 46);
-  --color-sodium-700: oklch(0.512 0.135 44);
+/* `static` emits every token as a CSS variable. DotField reads three of them
+   (ink, canvas, highlighter) by name at runtime, so they must always exist. */
+@theme static {
+  /* Paper and ink */
+  --color-canvas: #f3f1f1; /* white, faintly warmed toward burgundy */
+  --color-sheet: #ffffff; /* the palette white: flat surfaces; frosted panels use it at 72% */
+  --color-ink: #000000;
+  --color-graphite: #3f3a3b;
+  --color-pencil: #6a6465; /* placeholders, hints and inactive labels */
+  --color-hairline: #ddd8d9;
+  --color-hairline-strong: #bdb6b8; /* control outlines */
+  --color-void: #000000; /* the dark panel the dot field sits on */
 
-  /* Two functional hues, deliberately desaturated so the accent stays loudest. */
-  --color-signal-good: oklch(0.735 0.108 158);
-  --color-signal-bad: oklch(0.635 0.158 28);
+  /* The signal: burgundy. A background behind white text, never text itself. */
+  --color-highlighter: #6d001a;
+  --color-highlighter-wash: #f2dde2;
+  /* Burgundy lifted for black panels only (plain burgundy on black is 1.7:1). */
+  --color-highlighter-bright: #e5476a;
 
-  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+  /* Meaning: sure / check this / error. Always with a word or icon, never colour alone. */
+  --color-stamp: #1d7248;
+  --color-stamp-wash: #ddefe4;
+  --color-amber: #8f5400;
+  --color-amber-wash: #f8ebd4;
+  --color-brick: #ae2116;
+  --color-brick-wash: #f9e2df;
+
+  /* Doto (dot-matrix, 800-900) for the few big moments, never under 32px on
+     desktop; Geist to read; Geist Mono for everything you press or scan. */
+  --font-dot: 'Doto', ui-monospace, monospace;
+  --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
+  --font-mono: 'Geist Mono', ui-monospace, monospace;
+
+  /* Desktop sizes; phones step the display sizes down below. */
+  --text-count: 6rem;
+  --text-count--line-height: 5.5rem;
+  --text-display: 4rem;
+  --text-display--line-height: 4rem;
+  --text-title: 2.5rem;
+  --text-title--line-height: 2.75rem;
+  --text-heading: 1.25rem;
+  --text-heading--line-height: 1.75rem;
+  --text-body: 1rem;
+  --text-body--line-height: 1.5rem;
+  --text-small: 0.875rem;
+  --text-small--line-height: 1.25rem;
+  --text-micro: 0.75rem;
+  --text-micro--line-height: 1rem;
+
+  /* Rhythm on a 4px grid: sections, stacked parts, groups, items, tight pairs. */
+  --spacing-section: 3rem;
+  --spacing-stack: 2rem;
+  --spacing-group: 1.5rem;
+  --spacing-item: 1rem;
+  --spacing-tight: 0.5rem;
+
+  /* Radius by role: controls, frosted panels. Chips and toggles use rounded-full. */
+  --radius-control: 6px;
+  --radius-panel: 16px;
+  --radius-sheet: 20px;
+
+  /* One soft elevation, only for what floats (see `frost`). Static content has none. */
+  --shadow-raised: 0 0 0 1px rgb(0 0 0 / 0.05), 0 18px 40px -18px rgb(0 0 0 / 0.3);
+
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+
+  --animate-row-in: row-in 320ms var(--ease-standard) both;
+  --animate-cat-fall: cat-fall 1.6s ease-in-out infinite;
+  --animate-streak: streak 1.4s linear infinite;
+}
+
+/* Motion: three durations, one easing (--ease-standard). */
+:root {
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
 }
 
 @layer base {
+  /* No background on html: body's then propagates to the canvas, so the fixed
+     -z-10 dot field paints above the paper instead of under the body. */
   html {
-    background: var(--color-ink-900);
-    color-scheme: dark;
+    color-scheme: light;
   }
 
   body {
     margin: 0;
-    background: var(--color-ink-900);
-    color: var(--color-ink-100);
+    background: var(--color-canvas);
+    color: var(--color-ink);
     font-family: var(--font-sans);
-    font-synthesis-weight: none;
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
     -webkit-font-smoothing: antialiased;
-    text-rendering: optimizeLegibility;
+  }
+
+  /* Phones: the dot-matrix sizes step down. */
+  @media (width < 40rem) {
+    :root {
+      --text-count: 4rem;
+      --text-count--line-height: 3.75rem;
+      --text-display: 2.5rem;
+      --text-display--line-height: 2.5rem;
+      --text-title: 1.75rem;
+      --text-title--line-height: 2rem;
+    }
+  }
+
+  /* Figures line up in tables and counters: scores, durations, timecode. */
+  table,
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-ink);
+    outline-offset: 2px;
   }
 
   ::selection {
-    background: var(--color-sodium-500);
-    color: var(--color-ink-900);
+    background: var(--color-highlighter);
+    color: var(--color-sheet);
   }
 
-  /* One visible focus treatment everywhere, so keyboard use never guesses. */
-  :focus-visible {
-    outline: 2px solid var(--color-sodium-500);
-    outline-offset: 2px;
-    border-radius: 1px;
+  ::placeholder {
+    color: var(--color-pencil);
   }
 
   ::-webkit-scrollbar {
@@ -96,113 +169,180 @@
     height: 10px;
   }
   ::-webkit-scrollbar-track {
-    background: var(--color-ink-900);
+    background: var(--color-canvas);
   }
   ::-webkit-scrollbar-thumb {
-    background: var(--color-ink-700);
-    border: 3px solid var(--color-ink-900);
+    background: var(--color-hairline-strong);
+    border: 3px solid var(--color-canvas);
     border-radius: 99px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-ink-600);
+    background: var(--color-pencil);
+  }
+}
+
+/* A floating panel: sheet at 72% over a 16px blur, a white inner edge and the one soft shadow. */
+@utility frost {
+  background-color: color-mix(in srgb, var(--color-sheet) 72%, transparent);
+  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(16px);
+  box-shadow:
+    inset 0 0 0 1px rgb(255 255 255 / 0.7),
+    var(--shadow-raised);
+}
+
+/* A retro bevel: light top-left edge, dark bottom-right edge; pressing inverts it. */
+@utility bevel {
+  background-color: var(--color-sheet);
+  box-shadow:
+    inset 1px 1px 0 #fff,
+    inset -1px -1px 0 rgb(0 0 0 / 0.28),
+    0 0 0 1px var(--color-hairline-strong);
+  &:active:not(:disabled),
+  &[aria-pressed='true'],
+  &[data-state='open'] {
+    background-color: var(--color-hairline);
+    box-shadow:
+      inset 1px 1px 0 rgb(0 0 0 / 0.28),
+      inset -1px -1px 0 #fff,
+      0 0 0 1px var(--color-hairline-strong);
+  }
+}
+
+/* Loading, as dither: square dots on a 4px grid over a faint fill, and a band
+   where the offset grid joins in, stepping across. Density changes, never a gradient. */
+@utility dither {
+  --dots: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='2' height='2' fill-opacity='.16'/%3E%3C/svg%3E");
+  position: relative;
+  overflow: hidden;
+  background: var(--dots) color-mix(in srgb, var(--color-ink) 5%, var(--color-canvas));
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: var(--dots) 2px 2px;
+    mask-image: linear-gradient(90deg, transparent 42%, #000 42% 58%, transparent 58%);
+    mask-size: 300% 100%;
+    animation: dither 1.6s steps(20) infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    &::after {
+      animation: none;
+      mask-image: none;
+    }
   }
 }
 
 @layer components {
-  /* Numerals that hold their column: scores, durations, timecode. */
-  .numeric {
-    font-variant-numeric: tabular-nums;
-    font-feature-settings: 'tnum' 1;
+  /* Found words behind the signal: white text on a burgundy stamp. */
+  .mark {
+    background: var(--color-highlighter);
+    border-radius: 2px;
+    padding-inline: 0.15em;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+    color: var(--color-sheet);
+  }
+  @media (forced-colors: active) {
+    .mark {
+      text-decoration: underline 3px;
+    }
   }
 
-  /* The masthead label — small, wide-tracked, sits above a rule. */
-  .eyebrow {
-    font-size: 0.6875rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    color: var(--color-ink-400);
+  /* Small mono label above a field or section. Sentence case, no tracking. */
+  .label {
+    @apply font-mono text-micro text-graphite;
   }
 
-  .rule {
-    border-color: var(--color-ink-800);
-  }
-
-  /* Text input as a ruled line, not a box. Boxes everywhere is the tell of a
-     template; a ruled field reads like a form on paper. */
-  .field {
-    background: transparent;
-    border: 0;
-    border-bottom: 1px solid var(--color-ink-700);
-    padding: 0.625rem 0.125rem;
-    color: var(--color-ink-100);
-    width: 100%;
-    transition: border-color 220ms var(--ease-out-quart);
-  }
-  .field::placeholder {
-    color: var(--color-ink-600);
-  }
-  .field:focus {
-    outline: none;
-    border-bottom-color: var(--color-sodium-500);
-  }
-
+  /* Buttons are ink, not signal. Labels are mono. */
   .btn {
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0.5rem;
-    font-weight: 600;
-    font-size: 0.8125rem;
-    letter-spacing: 0.01em;
-    padding: 0.5rem 1rem;
-    transition:
-      background-color 180ms var(--ease-out-quart),
-      color 180ms var(--ease-out-quart),
-      border-color 180ms var(--ease-out-quart),
-      transform 180ms var(--ease-out-quart);
+    @apply inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-control px-4 font-mono text-small font-medium whitespace-nowrap transition-colors duration-(--duration-fast) select-none disabled:cursor-not-allowed;
   }
-  .btn:active:not(:disabled) {
-    transform: translateY(1px);
+  .btn-sm {
+    @apply h-8 px-3 text-micro;
   }
-  .btn:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
+  .btn-lg {
+    @apply h-12 px-5;
   }
-
   .btn-primary {
-    background: var(--color-sodium-500);
-    color: var(--color-ink-900);
+    @apply bg-ink text-sheet shadow-[inset_0_1px_0_rgb(255_255_255/0.22)] hover:bg-graphite active:bg-ink active:shadow-none disabled:bg-hairline-strong disabled:shadow-none;
   }
-  .btn-primary:hover:not(:disabled) {
-    background: var(--color-sodium-400);
+  .btn-secondary {
+    @apply bevel text-ink hover:bg-canvas disabled:bg-sheet disabled:text-pencil;
   }
-
-  .btn-ghost {
-    background: transparent;
-    color: var(--color-ink-200);
-    border: 1px solid var(--color-ink-700);
-  }
-  .btn-ghost:hover:not(:disabled) {
-    border-color: var(--color-ink-600);
-    color: var(--color-ink-100);
-  }
-
   .btn-quiet {
-    background: transparent;
-    color: var(--color-ink-400);
-    padding-inline: 0.25rem;
+    @apply text-graphite hover:bg-ink/6 hover:text-ink active:bg-ink/10 disabled:bg-transparent disabled:text-pencil;
   }
-  .btn-quiet:hover:not(:disabled) {
-    color: var(--color-sodium-400);
+  .btn-danger {
+    @apply bevel text-brick hover:bg-brick-wash disabled:bg-sheet disabled:text-pencil;
+  }
+
+  /* A hairline field, slightly sunk; focus draws it in ink with a signal-wash halo. */
+  .field {
+    @apply h-10 w-full rounded-control border border-hairline-strong bg-sheet px-3 text-small text-ink shadow-[inset_0_1px_2px_rgb(0_0_0/0.06)] transition-[border-color,box-shadow] duration-(--duration-fast) hover:border-graphite focus-visible:border-ink focus-visible:ring-4 focus-visible:ring-highlighter-wash focus-visible:outline-none aria-invalid:border-brick disabled:border-hairline disabled:bg-canvas disabled:text-pencil;
+  }
+
+  /* Mono pills led by a 6px square dot (one cell of the dot matrix). */
+  .badge {
+    @apply inline-flex items-center gap-1.5 rounded-full bg-ink/6 px-2.5 py-0.5 font-mono text-micro whitespace-nowrap text-graphite before:size-1.5 before:shrink-0 before:bg-current;
+  }
+  .badge-sure {
+    @apply bg-stamp-wash text-stamp;
+  }
+  .badge-check {
+    @apply bg-amber-wash text-amber;
+  }
+  .badge-error {
+    @apply bg-brick-wash text-brick;
+  }
+  .badge-chosen {
+    @apply bg-highlighter text-sheet;
+  }
+
+  /* A choice as a flat tile; the chosen tile fills with signal and a square fills too. */
+  .tile {
+    @apply relative flex h-full cursor-pointer flex-col items-start gap-1 rounded-control border border-hairline-strong bg-sheet py-3 pr-8 pl-item text-left transition-colors duration-(--duration-fast) after:absolute after:top-4 after:right-3.5 after:size-2 after:border after:border-graphite hover:border-graphite has-checked:border-ink has-checked:bg-highlighter has-checked:after:border-sheet has-checked:after:bg-sheet has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ink has-disabled:cursor-not-allowed has-disabled:opacity-50;
+  }
+  /* Text inside the chosen tile turns white; the burgundy signal sits behind it. */
+  .tile:has(:checked) * {
+    color: var(--color-sheet);
+  }
+
+  /* A pill toggle: a sunk track that fills with the signal, a raised white thumb. */
+  .switch {
+    @apply inline-flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full bg-hairline p-[3px] shadow-[inset_0_1px_2px_rgb(0_0_0/0.18)] transition-colors duration-(--duration-base) aria-checked:bg-highlighter disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .switch > span {
+    @apply block size-4.5 rounded-full bg-sheet shadow-[0_1px_2px_rgb(0_0_0/0.3),inset_0_1px_0_#fff] transition-[translate,background-color] duration-(--duration-base) ease-(--ease-standard);
+  }
+  .switch[aria-checked='true'] > span {
+    @apply translate-x-4;
+  }
+
+  /* A segmented pill group (ratio, filters): the pressed segment fills with signal. */
+  .segments {
+    @apply flex max-w-full gap-0.5 overflow-x-auto rounded-full border border-hairline-strong bg-sheet p-0.5;
+  }
+  .segments > button {
+    @apply h-8 shrink-0 rounded-full px-3 font-mono text-small whitespace-nowrap text-graphite hover:text-ink aria-pressed:bg-highlighter aria-pressed:text-sheet aria-pressed:hover:text-sheet;
+  }
+
+  /* A slip of quoted source text: mono on sheet, found words behind `.mark`. */
+  .quote {
+    @apply rounded-control border border-hairline bg-sheet px-3 py-2.5 font-mono text-small leading-relaxed break-words;
+  }
+
+  /* A data table: mono headers on a 2px ink rule, hairline rows, no zebra. */
+  .data-head {
+    @apply border-b-2 border-ink font-mono text-micro text-ink;
   }
 }
 
-/* Page load: a single orchestrated stagger beats scattered micro-animations. */
-@keyframes rise {
+@keyframes row-in {
   from {
     opacity: 0;
-    transform: translateY(10px);
+    transform: translateY(6px);
+    background-color: var(--color-highlighter-wash);
   }
   to {
     opacity: 1;
@@ -210,22 +350,39 @@
   }
 }
 
-.rise {
-  animation: rise 620ms var(--ease-out-expo) both;
+/* The falling cat: it sways and bobs in place while the air streaks rise past it. */
+@keyframes cat-fall {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-7deg);
+  }
+  50% {
+    transform: translateY(3px) rotate(7deg);
+  }
 }
 
-@keyframes sweep {
+@keyframes streak {
   from {
-    transform: scaleX(0);
+    transform: translateY(44px);
+    opacity: 0;
+  }
+  25%,
+  75% {
+    opacity: 1;
   }
   to {
-    transform: scaleX(1);
+    transform: translateY(-56px);
+    opacity: 0;
   }
 }
 
-.sweep {
-  transform-origin: left;
-  animation: sweep 900ms var(--ease-out-expo) both;
+@keyframes dither {
+  from {
+    mask-position: 100% 0;
+  }
+  to {
+    mask-position: 0 0;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

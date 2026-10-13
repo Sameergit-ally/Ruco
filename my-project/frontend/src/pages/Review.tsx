@@ -14,6 +14,7 @@ import {
 import { CaptionEditor } from '../components/CaptionEditor'
 import { ClipPlayer } from '../components/ClipPlayer'
 import { ErrorNote } from '../components/ErrorNote'
+import { FallingCat } from '../components/FallingCat'
 import { TrimBar } from '../components/TrimBar'
 
 const RATIOS = ['9:16', '1:1', '16:9'] as const
@@ -55,8 +56,6 @@ export function Review() {
       .getClipWords(selected.id)
       .then(setWords)
       .catch(() => setWords([]))
-    // 404 is expected for audio-only sources and jobs that never reframed; the
-    // player falls back to a centre crop, matching what the renderer does.
     api
       .getCropPath(selected.id)
       .then(setCropPath)
@@ -141,38 +140,46 @@ export function Review() {
 
   if (error && clips.length === 0) {
     return (
-      <div className="max-w-3xl pt-24">
+      <div className="max-w-2xl pt-16">
         <ErrorNote error={error} />
       </div>
     )
   }
 
-  if (!job) return <p className="pt-24 text-sm text-ink-500">Loading…</p>
+  if (!job) return <FallingCat className="min-h-[50vh]" />
 
   return (
-    <div className="pt-10">
-      <div className="flex flex-wrap items-baseline justify-between gap-4 border-b border-ink-800 pb-5">
+    <div className="pt-2 sm:pt-4">
+      {/* Masthead */}
+      <div className="flex flex-wrap items-baseline justify-between gap-4 border-b border-hairline pb-4">
         <div className="min-w-0">
-          <Link to="/" className="eyebrow transition-colors hover:text-sodium-500">
+          <Link
+            to="/"
+            className="inline-flex items-center gap-1 font-mono text-small text-graphite hover:text-ink"
+          >
             ← All jobs
           </Link>
-          <h1 className="mt-2 max-w-2xl truncate font-display text-[clamp(1.5rem,3vw,2.25rem)] leading-tight text-ink-100">
+          <h1 className="mt-1 font-dot text-title font-black text-ink text-balance line-clamp-2">
             {job.source?.title || 'Untitled'}
           </h1>
         </div>
 
-        <div className="flex items-baseline gap-6">
-          <span className="numeric text-xs text-ink-500">
+        <div className="flex items-center gap-group font-mono text-small">
+          <span className="tabular text-graphite">
             {clips.length} clips · {keptCount} kept
           </span>
-          <button onClick={exportKept} disabled={keptCount === 0} className="btn btn-primary">
+          <button
+            onClick={exportKept}
+            disabled={keptCount === 0}
+            className="btn btn-primary"
+          >
             Export kept
           </button>
         </div>
       </div>
 
       {error && (
-        <div className="mt-6 max-w-3xl">
+        <div className="mt-4 max-w-2xl">
           <ErrorNote error={error} onDismiss={() => setError(null)} />
         </div>
       )}
@@ -180,13 +187,22 @@ export function Review() {
       {clips.length === 0 ? (
         <EmptyState />
       ) : (
-        <div className="mt-8 grid gap-x-10 gap-y-10 lg:grid-cols-[minmax(0,20rem)_minmax(0,26rem)_minmax(0,1fr)]">
-          {/* Ranked list */}
-          <section className="lg:max-h-[76vh] lg:overflow-y-auto lg:pr-1">
-            <p className="eyebrow border-b border-ink-800 pb-2">Ranked</p>
-            <ul>
+        <div className="mt-6 grid gap-x-8 gap-y-8 lg:grid-cols-[minmax(0,20rem)_minmax(0,26rem)_minmax(0,1fr)]">
+          {/* Column 1: Ranked List */}
+          <section className="overflow-hidden rounded-control border border-hairline bg-sheet lg:max-h-[80vh] lg:overflow-y-auto">
+            <div
+              aria-hidden
+              className="data-head flex items-center justify-between px-group py-2.5"
+            >
+              <span>Ranked</span>
+              <span title="Engagement score: a ranking by hook, emotion and completeness, not a prediction.">
+                Score
+              </span>
+            </div>
+
+            <ul className="divide-y divide-hairline">
               {clips.map((clip, index) => (
-                <li key={clip.id}>
+                <li key={clip.id} className="animate-row-in">
                   <ClipRow
                     clip={clip}
                     index={index}
@@ -204,8 +220,8 @@ export function Review() {
             </ul>
           </section>
 
-          {/* Player + trim */}
-          <section className="space-y-8">
+          {/* Column 2: Player & Trim */}
+          <section className="space-y-6">
             {selected && jobId && (
               <>
                 <ClipPlayer
@@ -229,22 +245,24 @@ export function Review() {
             )}
           </section>
 
-          {/* Editor + style */}
-          <section className="space-y-10">
+          {/* Column 3: Edit & Export */}
+          <section className="space-y-8">
             {selected && (
               <>
+                {/* Rationale & Hook Quote */}
                 <div>
-                  <p className="eyebrow">Why this clip</p>
-                  <p className="mt-2 max-w-prose text-[0.9375rem] leading-relaxed text-ink-300">
+                  <span className="label">Why this clip</span>
+                  <p className="mt-1.5 max-w-prose font-sans text-body text-graphite">
                     {selected.reason || 'No rationale returned for this clip.'}
                   </p>
                   {selected.hook && (
-                    <p className="mt-3 border-l-2 border-ink-700 pl-3 font-display text-lg italic text-ink-200">
-                      “{selected.hook}”
-                    </p>
+                    <blockquote className="quote mt-2.5">
+                      <span className="mark">“{selected.hook}”</span>
+                    </blockquote>
                   )}
                 </div>
 
+                {/* Transcript Caption Editor */}
                 <CaptionEditor
                   words={words}
                   onChange={(next) => {
@@ -256,40 +274,62 @@ export function Review() {
                   dirty={wordsDirty}
                 />
 
+                {/* Caption Style Tiles */}
                 <div>
-                  <p className="eyebrow border-b border-ink-800 pb-2">Caption style</p>
-                  <div className="mt-3 space-y-1">
-                    {styles.map((style) => (
-                      <button
-                        key={style.key}
-                        onClick={() => setStyle(selected, style.key)}
-                        className={[
-                          'block w-full border-l-2 py-2 pl-3 text-left transition-colors duration-200',
-                          style.key === selected.caption_style
-                            ? 'border-sodium-500 bg-ink-850/60'
-                            : 'border-transparent hover:border-ink-700 hover:bg-ink-850/30',
-                        ].join(' ')}
-                      >
-                        <span className="text-sm text-ink-100">{style.label}</span>
-                        <span className="mt-0.5 block text-xs leading-snug text-ink-500">
-                          {style.description}
-                        </span>
-                      </button>
-                    ))}
+                  <span className="label block pb-1.5">Caption style</span>
+                  <div className="grid gap-tight sm:grid-cols-2">
+                    {styles.map((s) => {
+                      const checked = s.key === selected.caption_style
+                      return (
+                        <label key={s.key} className="tile">
+                          <input
+                            type="radio"
+                            name="caption_style"
+                            checked={checked}
+                            onChange={() => setStyle(selected, s.key)}
+                            className="sr-only"
+                          />
+                          <div className="flex w-full items-center justify-between gap-1">
+                            <span className="font-mono text-small font-semibold">
+                              {s.label}
+                            </span>
+                            {/* Color swatches */}
+                            <span className="flex items-center gap-1">
+                              <span
+                                className="size-2.5 rounded-[1px] border border-sheet ring-1 ring-ink"
+                                style={{ backgroundColor: s.preview.primary }}
+                              />
+                              {s.preview.accent && (
+                                <span
+                                  className="size-2.5 rounded-[1px] border border-sheet ring-1 ring-ink"
+                                  style={{ backgroundColor: s.preview.accent }}
+                                />
+                              )}
+                            </span>
+                          </div>
+                          <span className="text-micro text-graphite leading-snug">
+                            {s.description}
+                          </span>
+                        </label>
+                      )
+                    })}
                   </div>
                 </div>
 
+                {/* Aspect Ratio Segments */}
                 <div>
-                  <p className="eyebrow border-b border-ink-800 pb-2">Aspect ratio</p>
-                  <div className="mt-3 flex gap-2">
+                  <span className="label block pb-1.5">Aspect ratio</span>
+                  <div
+                    role="group"
+                    aria-label="Aspect ratio"
+                    className="segments inline-flex"
+                  >
                     {RATIOS.map((ratio) => (
                       <button
                         key={ratio}
+                        type="button"
+                        aria-pressed={ratio === selected.ratio}
                         onClick={() => setRatio(selected, ratio)}
-                        className={[
-                          'numeric btn',
-                          ratio === selected.ratio ? 'btn-primary' : 'btn-ghost',
-                        ].join(' ')}
                       >
                         {ratio}
                       </button>
@@ -297,30 +337,31 @@ export function Review() {
                   </div>
                 </div>
 
-                <div className="border-t border-ink-800 pt-6">
+                {/* Export this clip */}
+                <div className="border-t border-hairline pt-4">
                   <button
                     onClick={() => exportClip(selected)}
                     disabled={exporting.has(selected.id)}
-                    className="btn btn-primary w-full"
+                    className="btn btn-secondary w-full"
                   >
                     {exporting.has(selected.id) ? 'Rendering…' : 'Export this clip'}
                   </button>
 
                   {selected.exports.length > 0 && (
-                    <ul className="mt-4 space-y-2">
+                    <ul className="mt-3 divide-y divide-hairline rounded-control border border-hairline bg-sheet">
                       {selected.exports.map((record) => (
                         <li
                           key={record.id}
-                          className="flex items-baseline justify-between gap-3 text-xs"
+                          className="flex items-baseline justify-between gap-3 px-item py-2 font-mono text-small"
                         >
                           <a
                             href={record.download_url}
                             download
-                            className="truncate text-sodium-500 underline underline-offset-4"
+                            className="truncate text-ink underline underline-offset-4 hover:decoration-2"
                           >
                             {record.ratio} · {record.style}
                           </a>
-                          <span className="numeric shrink-0 text-ink-600">
+                          <span className="tabular text-pencil text-micro shrink-0">
                             {formatBytes(record.size_bytes)}
                           </span>
                         </li>
@@ -339,7 +380,7 @@ export function Review() {
 
 function ClipRow({
   clip,
-  index,
+  index: _index,
   selected,
   onSelect,
   onKeep,
@@ -355,11 +396,12 @@ function ClipRow({
   return (
     <div
       className={[
-        'rise group grid cursor-pointer grid-cols-[2.25rem_1fr] gap-x-3 border-b border-ink-850 py-3 pl-2 transition-colors duration-200',
-        selected ? 'bg-ink-850/70' : 'hover:bg-ink-850/35',
+        'group grid cursor-pointer grid-cols-[2.5rem_1fr] items-center gap-x-3 px-group py-3 transition-colors duration-fast',
+        selected
+          ? 'bg-canvas shadow-[inset_2px_0_0_var(--color-ink)]'
+          : 'hover:bg-canvas/70',
         clip.status === 'discarded' ? 'opacity-40' : '',
       ].join(' ')}
-      style={{ animationDelay: `${Math.min(index, 10) * 35}ms` }}
       onClick={onSelect}
       role="button"
       tabIndex={0}
@@ -367,33 +409,30 @@ function ClipRow({
         if (e.key === 'Enter') onSelect()
       }}
     >
-      {/* The score is the thing you scan by, so it gets the display face. */}
-      <span
-        className={[
-          'numeric self-start font-display text-2xl leading-none',
-          clip.score >= 85 ? 'text-sodium-500' : selected ? 'text-ink-200' : 'text-ink-500',
-        ].join(' ')}
-      >
-        {clip.score}
+      {/* Score */}
+      <span className="self-start font-mono text-heading font-medium tabular">
+        {clip.score >= 85 ? (
+          <span className="mark">{clip.score}</span>
+        ) : (
+          <span className="text-graphite">{clip.score}</span>
+        )}
       </span>
 
       <div className="min-w-0">
-        <p className="truncate text-[0.9375rem] leading-snug text-ink-100">
+        <p className="truncate text-small font-medium text-ink">
           {clip.title || 'Untitled clip'}
         </p>
-        <div className="mt-1 flex items-baseline gap-3">
-          <span className="numeric text-xs text-ink-500">{formatDuration(clip.duration_s)}</span>
-          {clip.user_trimmed && <span className="text-xs text-ink-600">trimmed</span>}
-          {clip.exports.length > 0 && (
-            <span className="text-xs text-signal-good">exported</span>
-          )}
+        <div className="mt-1 flex flex-wrap items-center gap-2 font-mono text-micro text-pencil tabular">
+          <span>{formatDuration(clip.duration_s)}</span>
+          {clip.user_trimmed && <span>trimmed</span>}
+          {clip.status === 'kept' && <span className="badge badge-chosen">Kept</span>}
+          {clip.status === 'exported' && <span className="badge badge-sure">Exported</span>}
 
-          {/* Secondary actions appear on hover or when the row is current —
-              progressive disclosure keeps the scan column clean. */}
+          {/* Actions */}
           <span
             className={[
-              'ml-auto flex gap-3 pr-2 transition-opacity duration-200',
-              selected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100',
+              'ml-auto flex items-center gap-2 transition-opacity duration-fast',
+              selected ? 'opacity-100' : 'opacity-0 group-hover:opacity-100 focus-within:opacity-100',
             ].join(' ')}
           >
             <button
@@ -401,18 +440,18 @@ function ClipRow({
                 e.stopPropagation()
                 onKeep()
               }}
-              className={`text-xs ${clip.status === 'kept' ? 'text-signal-good' : 'text-ink-400 hover:text-ink-100'}`}
+              className="text-graphite hover:text-ink"
             >
-              {clip.status === 'kept' ? 'kept' : 'keep'}
+              {clip.status === 'kept' ? 'Drop' : 'Keep'}
             </button>
             <button
               onClick={(e) => {
                 e.stopPropagation()
                 onDiscard()
               }}
-              className="text-xs text-ink-400 hover:text-signal-bad"
+              className="text-pencil hover:text-brick"
             >
-              {clip.status === 'discarded' ? 'undo' : 'drop'}
+              {clip.status === 'discarded' ? 'Undo' : 'Discard'}
             </button>
           </span>
         </div>
@@ -423,13 +462,13 @@ function ClipRow({
 
 function EmptyState() {
   return (
-    <div className="max-w-xl pt-20">
-      <h2 className="font-display text-3xl text-ink-200">No clips came back.</h2>
-      <p className="mt-4 text-sm leading-relaxed text-ink-400">
+    <div className="max-w-xl space-y-item py-section">
+      <h2 className="text-title font-semibold text-ink">No clips came back.</h2>
+      <p className="text-body text-graphite leading-relaxed">
         The model found nothing self-contained enough to stand alone — which is a real
         answer for some source material, not necessarily a failure.
       </p>
-      <p className="mt-3 text-sm leading-relaxed text-ink-400">
+      <p className="text-body text-graphite leading-relaxed">
         If you expected clips, try a larger provider model, or widen the length range so
         shorter moments qualify.
       </p>

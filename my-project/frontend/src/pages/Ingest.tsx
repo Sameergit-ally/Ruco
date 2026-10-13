@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 import {
   ApiError,
@@ -9,7 +9,9 @@ import {
   type JobSettingsOverrides,
   type ProviderStatus,
 } from '../api'
+import { DotField } from '../components/DotField'
 import { ErrorNote } from '../components/ErrorNote'
+import { JOB_STATUS_LABEL, StatusDot } from '../components/StatusDot'
 
 export function Ingest() {
   const navigate = useNavigate()
@@ -54,41 +56,57 @@ export function Ingest() {
   const submitFile = (file: File) => void start('file', () => api.uploadSource(file))
 
   const usableProvider = providers.find((p) => p.available)
+  const activeProviderName = overrides.provider || usableProvider?.name || 'ollama'
+  const isOllama = activeProviderName.toLowerCase() === 'ollama'
 
   return (
-    <div className="pt-14">
-      {/* Masthead. Left-aligned and asymmetric — the field is the subject, not
-          a centred hero card. */}
-      <div className="rise max-w-3xl">
-        <p className="eyebrow">Local · No accounts · No watermarks</p>
-        <h1 className="mt-5 font-display text-[clamp(2.75rem,7vw,5.5rem)] leading-[0.95] text-ink-100">
+    <div className="relative pt-6 sm:pt-10">
+      {/* Hero DotField bleeding off the right */}
+      <DotField
+        tone="ink"
+        interactive
+        className="-mx-4 -mt-stack -mb-group h-48 [mask-image:linear-gradient(to_bottom,black_30%,transparent)] sm:mx-0 sm:-mt-section lg:fixed lg:inset-y-0 lg:right-0 lg:-z-10 lg:m-0 lg:h-auto lg:w-1/2 lg:[mask-image:linear-gradient(to_right,transparent,black_30%)]"
+      />
+
+      <div className="max-w-xl">
+        <p className="label">Local · No accounts · No watermarks</p>
+        <h1 className="mt-3 font-dot text-display font-extrabold text-ink">
           Long video in.
           <br />
-          <span className="italic text-sodium-500">Shorts</span> out.
+          Shorts out.
         </h1>
       </div>
 
-      <div className="mt-16 grid gap-x-16 gap-y-12 lg:grid-cols-[1.35fr_1fr]">
-        {/* URL */}
-        <section className="rise" style={{ animationDelay: '90ms' }}>
-          <form onSubmit={submitUrl}>
-            <label htmlFor="url" className="eyebrow">
+      <div className="mt-12 grid gap-x-12 gap-y-10 lg:max-w-[600px]">
+        {/* URL Form inside frosted panel */}
+        <section>
+          <form
+            onSubmit={submitUrl}
+            className="frost rounded-panel p-4 transition-all duration-200 focus-within:[box-shadow:inset_0_0_0_1px_var(--color-ink),0_0_0_4px_var(--color-highlighter-wash),var(--shadow-raised)]"
+          >
+            <label htmlFor="url" className="label block">
               Paste a link
             </label>
-            <div className="mt-3 flex items-end gap-4">
-              <input
-                id="url"
-                className="field font-display text-xl md:text-2xl"
-                placeholder="https://youtube.com/watch?v=…"
-                value={url}
-                onChange={(e) => setUrl(e.target.value)}
-                autoComplete="off"
-                spellCheck={false}
-                disabled={busy !== null}
-              />
+            <input
+              id="url"
+              className="mt-2 w-full bg-transparent font-sans text-heading text-ink placeholder:text-pencil focus:outline-none"
+              placeholder="https://youtube.com/watch?v=…"
+              value={url}
+              onChange={(e) => setUrl(e.target.value)}
+              autoComplete="off"
+              spellCheck={false}
+              disabled={busy !== null}
+            />
+
+            <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-t border-hairline pt-3">
+              <span className="font-mono text-micro text-pencil">
+                {isOllama
+                  ? 'Free · runs on this machine'
+                  : `Sends transcript text to ${activeProviderName}. Never video or audio.`}
+              </span>
               <button
                 type="submit"
-                className="btn btn-primary shrink-0"
+                className="btn btn-primary btn-lg"
                 disabled={busy !== null || !url.trim()}
               >
                 {busy === 'url' ? 'Fetching…' : 'Start'}
@@ -96,7 +114,7 @@ export function Ingest() {
             </div>
           </form>
 
-          <p className="mt-3 text-xs leading-relaxed text-ink-500">
+          <p className="mt-2 text-micro text-pencil">
             Only download video you own or have the rights to process.
           </p>
 
@@ -109,9 +127,9 @@ export function Ingest() {
           />
         </section>
 
-        {/* Upload */}
-        <section className="rise" style={{ animationDelay: '160ms' }}>
-          <p className="eyebrow">Or drop a file</p>
+        {/* Upload Drop Zone */}
+        <section>
+          <p className="label mb-2">Or drop a file</p>
           <div
             onDragOver={(e) => {
               e.preventDefault()
@@ -125,10 +143,8 @@ export function Ingest() {
               if (file) submitFile(file)
             }}
             className={[
-              'mt-3 flex min-h-52 cursor-pointer flex-col items-center justify-center gap-2 border border-dashed px-6 text-center transition-colors duration-200',
-              dragging
-                ? 'border-sodium-500 bg-sodium-700/10'
-                : 'border-ink-700 hover:border-ink-600',
+              'flex min-h-44 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-control border border-dashed bg-sheet px-group py-stack text-center transition-colors duration-base',
+              dragging ? 'border-ink bg-highlighter-wash' : 'border-hairline-strong hover:border-graphite',
             ].join(' ')}
             onClick={() => fileInput.current?.click()}
             role="button"
@@ -137,10 +153,12 @@ export function Ingest() {
               if (e.key === 'Enter' || e.key === ' ') fileInput.current?.click()
             }}
           >
-            <span className="font-display text-2xl text-ink-200">
+            <span className="text-heading font-semibold text-ink">
               {busy === 'file' ? 'Uploading…' : 'Drop video or audio'}
             </span>
-            <span className="text-xs text-ink-500">mp4 · mov · mkv · webm · mp3 · wav · m4a</span>
+            <span className="font-mono text-micro text-pencil">
+              mp4 · mov · mkv · webm · mp3 · wav · m4a
+            </span>
           </div>
           <input
             ref={fileInput}
@@ -157,18 +175,18 @@ export function Ingest() {
       </div>
 
       {error && (
-        <div className="mt-10 max-w-3xl">
+        <div className="mt-8 max-w-xl">
           <ErrorNote error={error} onDismiss={() => setError(null)} />
         </div>
       )}
 
       {providers.length > 0 && !usableProvider && (
-        <p className="mt-10 max-w-3xl border-l-2 border-sodium-600 pl-4 text-sm text-ink-300">
+        <p className="mt-8 max-w-xl border-l-2 border-amber bg-amber-wash px-item py-tight text-small text-amber">
           No AI provider is reachable yet, so clip selection will fail. Add an API key or
           start Ollama in{' '}
-          <a href="/settings" className="text-sodium-500 underline underline-offset-4">
+          <Link to="/settings" className="font-medium underline underline-offset-4">
             Settings
-          </a>
+          </Link>
           .
         </p>
       )}
@@ -195,10 +213,10 @@ function AdvancedOptions({
     onChange({ ...overrides, [key]: value })
 
   return (
-    <div className="mt-8">
-      <button type="button" onClick={onToggle} className="btn btn-quiet -ml-1">
+    <div className="mt-6">
+      <button type="button" onClick={onToggle} className="btn btn-quiet btn-sm -ml-2 text-graphite">
         <span
-          className="inline-block transition-transform duration-300"
+          className="inline-block transition-transform duration-base ease-(--ease-standard)"
           style={{ transform: open ? 'rotate(90deg)' : 'none' }}
           aria-hidden
         >
@@ -207,14 +225,12 @@ function AdvancedOptions({
         {open ? 'Hide options' : 'Options'}
       </button>
 
-      {/* grid-template-rows rather than height, so the reveal animates without
-          touching layout properties. */}
       <div
-        className="grid transition-[grid-template-rows] duration-400 ease-[cubic-bezier(0.16,1,0.3,1)]"
+        className="grid transition-[grid-template-rows] duration-(--duration-slow) ease-(--ease-standard)"
         style={{ gridTemplateRows: open ? '1fr' : '0fr' }}
       >
         <div className="overflow-hidden">
-          <div className="grid gap-x-8 gap-y-5 pt-5 sm:grid-cols-2">
+          <div className="grid gap-x-6 gap-y-4 pt-4 sm:grid-cols-2">
             <Selector
               label="Provider"
               value={overrides.provider ?? ''}
@@ -249,7 +265,7 @@ function AdvancedOptions({
               max={50}
               onChange={(v) => set('max_clips', v)}
             />
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-3">
               <NumberField
                 label="Min length (s)"
                 value={overrides.min_duration_s}
@@ -267,13 +283,16 @@ function AdvancedOptions({
                 onChange={(v) => set('max_duration_s', v)}
               />
             </div>
-            <label className="flex items-center gap-3 text-sm text-ink-200 sm:col-span-2">
-              <input
-                type="checkbox"
-                checked={overrides.diarization ?? false}
-                onChange={(e) => set('diarization', e.target.checked || undefined)}
-                className="size-4 accent-sodium-500"
-              />
+            <label className="flex items-center gap-3 font-mono text-small text-graphite sm:col-span-2">
+              <button
+                type="button"
+                role="switch"
+                aria-checked={overrides.diarization ?? false}
+                onClick={() => set('diarization', !overrides.diarization || undefined)}
+                className="switch"
+              >
+                <span />
+              </button>
               Multiple speakers — label who is talking, and cut to them
             </label>
           </div>
@@ -296,19 +315,14 @@ function Selector({
 }) {
   return (
     <label className="block">
-      <span className="eyebrow">{label}</span>
+      <span className="label">{label}</span>
       <select
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        className="field mt-1 cursor-pointer text-sm"
+        className="field mt-1 cursor-pointer"
       >
         {options.map((option) => (
-          <option
-            key={option.value}
-            value={option.value}
-            disabled={option.disabled}
-            className="bg-ink-850"
-          >
+          <option key={option.value} value={option.value} disabled={option.disabled}>
             {option.label}
           </option>
         ))}
@@ -334,10 +348,10 @@ function NumberField({
 }) {
   return (
     <label className="block">
-      <span className="eyebrow">{label}</span>
+      <span className="label">{label}</span>
       <input
         type="number"
-        className="field numeric mt-1 text-sm"
+        className="field tabular mt-1"
         placeholder={placeholder}
         value={value ?? ''}
         min={min}
@@ -352,49 +366,52 @@ function RecentJobs({ jobs }: { jobs: Job[] }) {
   if (jobs.length === 0) return null
 
   return (
-    <section className="rise mt-24" style={{ animationDelay: '240ms' }}>
-      <div className="flex items-baseline justify-between border-b border-ink-800 pb-3">
-        <h2 className="eyebrow">Recent</h2>
-        <span className="numeric text-xs text-ink-600">{jobs.length}</span>
+    <section className="mt-16">
+      <div className="flex items-baseline justify-between pb-3">
+        <h2 className="label">Recent</h2>
+        <span className="font-mono text-micro tabular text-pencil">{jobs.length}</span>
       </div>
 
-      <ul>
-        {jobs.map((job) => (
-          <li key={job.id}>
-            <a
-              href={job.status === 'done' ? `/jobs/${job.id}/clips` : `/jobs/${job.id}`}
-              className="group grid grid-cols-[1fr_auto] items-baseline gap-4 border-b border-ink-850 py-4 transition-colors duration-200 hover:bg-ink-850/40 sm:grid-cols-[1fr_7rem_6rem_5rem]"
-            >
-              <span className="truncate text-[0.9375rem] text-ink-200 group-hover:text-ink-100">
-                {job.source?.title || 'Untitled'}
-              </span>
-              <span className="numeric hidden text-xs text-ink-500 sm:block">
-                {job.source ? formatDuration(job.source.duration_s) : '—'}
-              </span>
-              <span className="hidden text-xs text-ink-500 sm:block">{job.provider}</span>
-              <StatusTag job={job} />
-            </a>
-          </li>
-        ))}
-      </ul>
+      <div className="overflow-hidden rounded-control border border-hairline bg-sheet">
+        <div
+          aria-hidden
+          className="data-head hidden gap-x-group px-group py-2.5 sm:grid sm:grid-cols-[minmax(0,1fr)_11rem_5rem_6rem]"
+        >
+          <span>Name</span>
+          <span>Status</span>
+          <span className="text-right">Length</span>
+          <span className="text-right">Provider</span>
+        </div>
+
+        <ul className="divide-y divide-hairline">
+          {jobs.map((job) => (
+            <li key={job.id} className="animate-row-in">
+              <Link
+                to={job.status === 'done' ? `/jobs/${job.id}/clips` : `/jobs/${job.id}`}
+                className="grid grid-cols-[1fr_auto] items-center gap-x-group px-group py-3.5 transition-colors duration-fast hover:bg-canvas/70 sm:grid-cols-[minmax(0,1fr)_11rem_5rem_6rem]"
+              >
+                <span className="truncate font-medium text-ink">
+                  {job.source?.title || 'Untitled'}
+                </span>
+                <span className="flex items-center gap-2 font-mono text-small">
+                  <StatusDot status={job.status} />
+                  <span>
+                    {job.status === 'running'
+                      ? `Running · ${Math.round(job.progress * 100)}%`
+                      : JOB_STATUS_LABEL[job.status]}
+                  </span>
+                </span>
+                <span className="hidden text-right font-mono text-small tabular text-graphite sm:block">
+                  {job.source ? formatDuration(job.source.duration_s) : '—'}
+                </span>
+                <span className="hidden text-right font-mono text-small tabular text-graphite sm:block">
+                  {job.provider}
+                </span>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      </div>
     </section>
-  )
-}
-
-function StatusTag({ job }: { job: Job }) {
-  const tone: Record<string, string> = {
-    done: 'text-signal-good',
-    failed: 'text-signal-bad',
-    running: 'text-sodium-500',
-    queued: 'text-ink-400',
-    cancelled: 'text-ink-500',
-  }
-  const label =
-    job.status === 'running' ? `${Math.round(job.progress * 100)}%` : job.status
-
-  return (
-    <span className={`numeric justify-self-end text-xs ${tone[job.status] ?? 'text-ink-400'}`}>
-      {label}
-    </span>
   )
 }

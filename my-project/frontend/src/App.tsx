@@ -1,98 +1,68 @@
 import { useEffect, useState } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 
 import { api, type SystemStatus } from './api'
+import { AmbientField, isWideFrame } from './components/AmbientField'
+import { Logo } from './components/Logo'
 
-/**
- * Application shell.
- *
- * A masthead rather than a sidebar: this is a four-screen tool, and a
- * persistent nav rail would spend a fifth of the width restating that.
- */
 export function App() {
   const [system, setSystem] = useState<SystemStatus | null>(null)
+  const wide = isWideFrame(useLocation().pathname)
+  // Literal strings so Tailwind finds both.
+  const frame = wide ? 'max-w-[1600px]' : 'max-w-[1200px]'
 
   useEffect(() => {
     api.system().then(setSystem).catch(() => setSystem(null))
   }, [])
 
   return (
-    <div className="min-h-screen bg-ink-900">
-      <header className="border-b border-ink-800">
-        <div className="mx-auto flex max-w-[1600px] items-baseline gap-8 px-6 py-4 lg:px-10">
-          <NavLink to="/" className="group flex items-baseline gap-2.5">
-            <span className="font-display text-2xl leading-none text-ink-100">
-              Auto<span className="italic text-sodium-500">Clip</span>
-            </span>
-          </NavLink>
-
-          <nav className="flex items-baseline gap-6">
-            <TopLink to="/" end>
-              New
-            </TopLink>
-            <TopLink to="/settings">Settings</TopLink>
-          </nav>
-
-          <div className="ml-auto flex items-baseline gap-5">
+    <>
+      <AmbientField />
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-control focus:bg-ink focus:px-3 focus:py-2 focus:text-sheet"
+      >
+        Skip to content
+      </a>
+      <header className="border-b border-hairline bg-canvas">
+        <nav aria-label="Main" className={`mx-auto flex h-14 ${frame} items-center gap-group px-4 sm:px-6`}>
+          <Logo />
+          <div className="ml-auto flex items-center gap-group font-mono text-small">
             {system && <SystemBadge system={system} />}
+            <NavLink
+              to="/settings"
+              className={({ isActive }) => (isActive ? 'text-ink font-semibold' : 'text-graphite hover:text-ink')}
+            >
+              Settings
+            </NavLink>
+            <NavLink to="/" end className="btn btn-secondary btn-sm">
+              New clip
+            </NavLink>
           </div>
-        </div>
+        </nav>
       </header>
-
-      <main className="mx-auto max-w-[1600px] px-6 pb-24 lg:px-10">
+      {/* No background on main: the dot field sits behind it at z -10. */}
+      <main id="main" className={`mx-auto ${frame} px-4 py-stack sm:px-6 sm:py-section`}>
         <Outlet />
       </main>
-    </div>
+    </>
   )
 }
 
-function TopLink({
-  to,
-  end,
-  children,
-}: {
-  to: string
-  end?: boolean
-  children: React.ReactNode
-}) {
-  return (
-    <NavLink
-      to={to}
-      end={end}
-      className={({ isActive }) =>
-        [
-          'text-sm font-medium transition-colors duration-200',
-          isActive ? 'text-sodium-500' : 'text-ink-400 hover:text-ink-200',
-        ].join(' ')
-      }
-    >
-      {children}
-    </NavLink>
-  )
-}
-
-/**
- * Compact machine status.
- *
- * Surfaced permanently rather than hidden in settings because the two things it
- * reports — whether ffmpeg can render, and whether the GPU is being used — are
- * the two that change how long everything takes.
- */
+/** Words, not colour alone. Hidden on small screens. */
 function SystemBadge({ system }: { system: SystemStatus }) {
   const accel = system.accel.toUpperCase()
   return (
-    <div className="hidden items-baseline gap-4 text-xs md:flex">
-      <span className="numeric text-ink-400">
+    <div className="hidden items-center gap-item md:flex">
+      <span className="tabular text-micro text-pencil">
         {accel}
-        {system.gpu_name && accel === 'CUDA' && (
-          <span className="text-ink-600"> · {system.gpu_name.replace('NVIDIA GeForce ', '')}</span>
-        )}
+        {system.gpu_name && accel === 'CUDA' && ` · ${system.gpu_name.replace('NVIDIA GeForce ', '')}`}
       </span>
       <span
-        className={system.ready ? 'text-ink-400' : 'text-signal-bad'}
+        className={system.ready ? 'badge badge-sure' : 'badge badge-error'}
         title={system.ready ? 'All required components present' : 'Run autoclip doctor'}
       >
-        {system.ready ? 'ready' : 'not ready'}
+        {system.ready ? 'Ready' : 'Not ready'}
       </span>
     </div>
   )
