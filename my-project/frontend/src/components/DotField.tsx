@@ -108,15 +108,15 @@ export function DotField({
 
           if (isVoid) {
             if (nearPointer && res > 0.3) {
-              ctx.fillStyle = `rgba(229, 71, 106, ${alpha})` // highlighter-bright
+              ctx.fillStyle = `rgba(158, 20, 50, ${alpha})` // burgundy highlighter-bright
             } else {
               ctx.fillStyle = `rgba(255, 255, 255, ${alpha})`
             }
           } else {
             if (nearPointer) {
-              ctx.fillStyle = `rgba(109, 0, 26, ${alpha})` // highlighter
+              ctx.fillStyle = `rgba(109, 0, 26, ${alpha})` // CAESAR burgundy #6D001A
             } else {
-              ctx.fillStyle = `rgba(0, 0, 0, ${alpha})`
+              ctx.fillStyle = `rgba(255, 255, 255, ${alpha})` // crisp white dots on black canvas
             }
           }
 

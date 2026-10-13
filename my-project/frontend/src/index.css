@@ -40,29 +40,30 @@
 /* `static` emits every token as a CSS variable. DotField reads three of them
    (ink, canvas, highlighter) by name at runtime, so they must always exist. */
 @theme static {
-  /* Paper and ink */
-  --color-canvas: #f3f1f1; /* white, faintly warmed toward burgundy */
-  --color-sheet: #ffffff; /* the palette white: flat surfaces; frosted panels use it at 72% */
-  --color-ink: #000000;
-  --color-graphite: #3f3a3b;
-  --color-pencil: #6a6465; /* placeholders, hints and inactive labels */
-  --color-hairline: #ddd8d9;
-  --color-hairline-strong: #bdb6b8; /* control outlines */
-  --color-void: #000000; /* the dark panel the dot field sits on */
+  /* True CAESAR palette: Black #000000, Burgundy #6D001A, White #FFFFFF */
+  --color-canvas: #000000; /* deep pure black canvas */
+  --color-sheet: #0e0d0e; /* dark luxury surface for cards/panels */
+  --color-sheet-elevated: #161415; /* elevated surface */
+  --color-ink: #ffffff; /* crisp white text */
+  --color-graphite: #c2bebf; /* high-contrast secondary text */
+  --color-pencil: #7e7779; /* placeholders, hints and inactive labels */
+  --color-hairline: #242022; /* subtle dark border */
+  --color-hairline-strong: #3b3537; /* control outlines */
+  --color-void: #000000; /* true black void panel */
 
-  /* The signal: burgundy. A background behind white text, never text itself. */
+  /* The signal: burgundy #6D001A. The heart of Project CAESAR. */
   --color-highlighter: #6d001a;
-  --color-highlighter-wash: #f2dde2;
-  /* Burgundy lifted for black panels only (plain burgundy on black is 1.7:1). */
-  --color-highlighter-bright: #e5476a;
+  --color-highlighter-wash: #28020a; /* dark velvet burgundy wash for highlights and active rings */
+  /* Burgundy lifted for subtle glowing accents */
+  --color-highlighter-bright: #9e1432;
 
   /* Meaning: sure / check this / error. Always with a word or icon, never colour alone. */
-  --color-stamp: #1d7248;
-  --color-stamp-wash: #ddefe4;
-  --color-amber: #8f5400;
-  --color-amber-wash: #f8ebd4;
-  --color-brick: #ae2116;
-  --color-brick-wash: #f9e2df;
+  --color-stamp: #2bb673;
+  --color-stamp-wash: #0a2618;
+  --color-amber: #e59934;
+  --color-amber-wash: #2b1d0a;
+  --color-brick: #e54747;
+  --color-brick-wash: #2e0d0d;
 
   /* Doto (dot-matrix, 800-900) for the few big moments, never under 32px on
      desktop; Geist to read; Geist Mono for everything you press or scan. */
@@ -99,7 +100,7 @@
   --radius-sheet: 20px;
 
   /* One soft elevation, only for what floats (see `frost`). Static content has none. */
-  --shadow-raised: 0 0 0 1px rgb(0 0 0 / 0.05), 0 18px 40px -18px rgb(0 0 0 / 0.3);
+  --shadow-raised: 0 0 0 1px rgb(255 255 255 / 0.08), 0 20px 48px -12px rgb(0 0 0 / 0.85);
 
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
@@ -119,7 +120,7 @@
   /* No background on html: body's then propagates to the canvas, so the fixed
      -z-10 dot field paints above the paper instead of under the body. */
   html {
-    color-scheme: light;
+    color-scheme: dark;
   }
 
   body {
@@ -157,7 +158,7 @@
 
   ::selection {
     background: var(--color-highlighter);
-    color: var(--color-sheet);
+    color: #ffffff;
   }
 
   ::placeholder {
@@ -181,30 +182,30 @@
   }
 }
 
-/* A floating panel: sheet at 72% over a 16px blur, a white inner edge and the one soft shadow. */
+/* A floating panel: dark frosted sheet over a blur with a subtle inner border and soft shadow. */
 @utility frost {
-  background-color: color-mix(in srgb, var(--color-sheet) 72%, transparent);
+  background-color: color-mix(in srgb, var(--color-sheet) 85%, transparent);
   -webkit-backdrop-filter: blur(16px);
   backdrop-filter: blur(16px);
   box-shadow:
-    inset 0 0 0 1px rgb(255 255 255 / 0.7),
+    inset 0 0 0 1px rgb(255 255 255 / 0.1),
     var(--shadow-raised);
 }
 
-/* A retro bevel: light top-left edge, dark bottom-right edge; pressing inverts it. */
+/* A retro bevel: elevated dark edge; pressing inverts it. */
 @utility bevel {
   background-color: var(--color-sheet);
   box-shadow:
-    inset 1px 1px 0 #fff,
-    inset -1px -1px 0 rgb(0 0 0 / 0.28),
+    inset 1px 1px 0 rgb(255 255 255 / 0.12),
+    inset -1px -1px 0 rgb(0 0 0 / 0.6),
     0 0 0 1px var(--color-hairline-strong);
   &:active:not(:disabled),
   &[aria-pressed='true'],
   &[data-state='open'] {
     background-color: var(--color-hairline);
     box-shadow:
-      inset 1px 1px 0 rgb(0 0 0 / 0.28),
-      inset -1px -1px 0 #fff,
+      inset 1px 1px 0 rgb(0 0 0 / 0.6),
+      inset -1px -1px 0 rgb(255 255 255 / 0.12),
       0 0 0 1px var(--color-hairline-strong);
   }
 }
@@ -212,10 +213,10 @@
 /* Loading, as dither: square dots on a 4px grid over a faint fill, and a band
    where the offset grid joins in, stepping across. Density changes, never a gradient. */
 @utility dither {
-  --dots: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='2' height='2' fill-opacity='.16'/%3E%3C/svg%3E");
+  --dots: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='2' height='2' fill='%23ffffff' fill-opacity='.12'/%3E%3C/svg%3E");
   position: relative;
   overflow: hidden;
-  background: var(--dots) color-mix(in srgb, var(--color-ink) 5%, var(--color-canvas));
+  background: var(--dots) color-mix(in srgb, var(--color-sheet) 90%, var(--color-canvas));
   &::after {
     content: '';
     position: absolute;
@@ -238,10 +239,11 @@
   .mark {
     background: var(--color-highlighter);
     border-radius: 2px;
-    padding-inline: 0.15em;
+    padding-inline: 0.25em;
+    padding-block: 0.1em;
     box-decoration-break: clone;
     -webkit-box-decoration-break: clone;
-    color: var(--color-sheet);
+    color: #ffffff;
   }
   @media (forced-colors: active) {
     .mark {
@@ -254,7 +256,7 @@
     @apply font-mono text-micro text-graphite;
   }
 
-  /* Buttons are ink, not signal. Labels are mono. */
+  /* Buttons are CAESAR styled: Primary is rich burgundy with crisp white text. */
   .btn {
     @apply inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-control px-4 font-mono text-small font-medium whitespace-nowrap transition-colors duration-(--duration-fast) select-none disabled:cursor-not-allowed;
   }
@@ -265,26 +267,26 @@
     @apply h-12 px-5;
   }
   .btn-primary {
-    @apply bg-ink text-sheet shadow-[inset_0_1px_0_rgb(255_255_255/0.22)] hover:bg-graphite active:bg-ink active:shadow-none disabled:bg-hairline-strong disabled:shadow-none;
+    @apply bg-highlighter text-white shadow-[inset_0_1px_0_rgb(255_255_255/0.25),0_2px_12px_rgb(109_0_26/0.4)] hover:bg-[#850020] active:bg-highlighter active:shadow-none disabled:bg-hairline-strong disabled:text-pencil disabled:shadow-none;
   }
   .btn-secondary {
-    @apply bevel text-ink hover:bg-canvas disabled:bg-sheet disabled:text-pencil;
+    @apply bevel text-ink hover:bg-hairline disabled:bg-sheet disabled:text-pencil;
   }
   .btn-quiet {
-    @apply text-graphite hover:bg-ink/6 hover:text-ink active:bg-ink/10 disabled:bg-transparent disabled:text-pencil;
+    @apply text-graphite hover:bg-white/8 hover:text-ink active:bg-white/12 disabled:bg-transparent disabled:text-pencil;
   }
   .btn-danger {
     @apply bevel text-brick hover:bg-brick-wash disabled:bg-sheet disabled:text-pencil;
   }
 
-  /* A hairline field, slightly sunk; focus draws it in ink with a signal-wash halo. */
+  /* A hairline field, slightly sunk; focus draws it with a burgundy halo. */
   .field {
-    @apply h-10 w-full rounded-control border border-hairline-strong bg-sheet px-3 text-small text-ink shadow-[inset_0_1px_2px_rgb(0_0_0/0.06)] transition-[border-color,box-shadow] duration-(--duration-fast) hover:border-graphite focus-visible:border-ink focus-visible:ring-4 focus-visible:ring-highlighter-wash focus-visible:outline-none aria-invalid:border-brick disabled:border-hairline disabled:bg-canvas disabled:text-pencil;
+    @apply h-10 w-full rounded-control border border-hairline-strong bg-sheet px-3 text-small text-ink shadow-[inset_0_1px_2px_rgb(0_0_0/0.4)] transition-[border-color,box-shadow] duration-(--duration-fast) hover:border-graphite focus-visible:border-white focus-visible:ring-4 focus-visible:ring-highlighter/50 focus-visible:outline-none aria-invalid:border-brick disabled:border-hairline disabled:bg-canvas disabled:text-pencil;
   }
 
   /* Mono pills led by a 6px square dot (one cell of the dot matrix). */
   .badge {
-    @apply inline-flex items-center gap-1.5 rounded-full bg-ink/6 px-2.5 py-0.5 font-mono text-micro whitespace-nowrap text-graphite before:size-1.5 before:shrink-0 before:bg-current;
+    @apply inline-flex items-center gap-1.5 rounded-full bg-white/8 px-2.5 py-0.5 font-mono text-micro whitespace-nowrap text-graphite before:size-1.5 before:shrink-0 before:bg-current;
   }
   .badge-sure {
     @apply bg-stamp-wash text-stamp;
@@ -296,24 +298,24 @@
     @apply bg-brick-wash text-brick;
   }
   .badge-chosen {
-    @apply bg-highlighter text-sheet;
+    @apply bg-highlighter text-white;
   }
 
   /* A choice as a flat tile; the chosen tile fills with signal and a square fills too. */
   .tile {
-    @apply relative flex h-full cursor-pointer flex-col items-start gap-1 rounded-control border border-hairline-strong bg-sheet py-3 pr-8 pl-item text-left transition-colors duration-(--duration-fast) after:absolute after:top-4 after:right-3.5 after:size-2 after:border after:border-graphite hover:border-graphite has-checked:border-ink has-checked:bg-highlighter has-checked:after:border-sheet has-checked:after:bg-sheet has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-ink has-disabled:cursor-not-allowed has-disabled:opacity-50;
+    @apply relative flex h-full cursor-pointer flex-col items-start gap-1 rounded-control border border-hairline-strong bg-sheet py-3 pr-8 pl-item text-left transition-colors duration-(--duration-fast) after:absolute after:top-4 after:right-3.5 after:size-2 after:border after:border-graphite hover:border-graphite has-checked:border-white has-checked:bg-highlighter has-checked:after:border-white has-checked:after:bg-white has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-white has-disabled:cursor-not-allowed has-disabled:opacity-50;
   }
   /* Text inside the chosen tile turns white; the burgundy signal sits behind it. */
   .tile:has(:checked) * {
-    color: var(--color-sheet);
+    color: #ffffff;
   }
 
   /* A pill toggle: a sunk track that fills with the signal, a raised white thumb. */
   .switch {
-    @apply inline-flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full bg-hairline p-[3px] shadow-[inset_0_1px_2px_rgb(0_0_0/0.18)] transition-colors duration-(--duration-base) aria-checked:bg-highlighter disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full bg-hairline-strong p-[3px] shadow-[inset_0_1px_2px_rgb(0_0_0/0.4)] transition-colors duration-(--duration-base) aria-checked:bg-highlighter disabled:cursor-not-allowed disabled:opacity-50;
   }
   .switch > span {
-    @apply block size-4.5 rounded-full bg-sheet shadow-[0_1px_2px_rgb(0_0_0/0.3),inset_0_1px_0_#fff] transition-[translate,background-color] duration-(--duration-base) ease-(--ease-standard);
+    @apply block size-4.5 rounded-full bg-white shadow-[0_1px_2px_rgb(0_0_0/0.4)] transition-[translate,background-color] duration-(--duration-base) ease-(--ease-standard);
   }
   .switch[aria-checked='true'] > span {
     @apply translate-x-4;
@@ -324,17 +326,17 @@
     @apply flex max-w-full gap-0.5 overflow-x-auto rounded-full border border-hairline-strong bg-sheet p-0.5;
   }
   .segments > button {
-    @apply h-8 shrink-0 rounded-full px-3 font-mono text-small whitespace-nowrap text-graphite hover:text-ink aria-pressed:bg-highlighter aria-pressed:text-sheet aria-pressed:hover:text-sheet;
+    @apply h-8 shrink-0 rounded-full px-3 font-mono text-small whitespace-nowrap text-graphite hover:text-ink aria-pressed:bg-highlighter aria-pressed:text-white aria-pressed:hover:text-white;
   }
 
   /* A slip of quoted source text: mono on sheet, found words behind `.mark`. */
   .quote {
-    @apply rounded-control border border-hairline bg-sheet px-3 py-2.5 font-mono text-small leading-relaxed break-words;
+    @apply rounded-control border border-hairline bg-sheet px-3 py-2.5 font-mono text-small leading-relaxed break-words text-ink;
   }
 
   /* A data table: mono headers on a 2px ink rule, hairline rows, no zebra. */
   .data-head {
-    @apply border-b-2 border-ink font-mono text-micro text-ink;
+    @apply border-b-2 border-hairline-strong font-mono text-micro text-graphite;
   }
 }
 
