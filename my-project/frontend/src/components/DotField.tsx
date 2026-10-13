@@ -58,7 +58,7 @@ export function DotField({
       window.addEventListener('mousemove', handlePointerMove)
     }
 
-    const dotSpacing = 16
+    const dotSpacing = 20
     let time = 0
 
     const render = () => {
@@ -73,7 +73,7 @@ export function DotField({
       const rows = Math.ceil(height / dotSpacing)
 
       const isVoid = tone === 'void'
-      const baseAlpha = (isVoid ? 0.25 : 0.15) * intensity
+      const baseAlpha = (isVoid ? 0.35 : 0.22) * intensity
 
       for (let r = 0; r < rows; r++) {
         for (let c = 0; c < cols; c++) {
@@ -90,16 +90,16 @@ export function DotField({
           const dx = pointer.current.x - x
           const dy = pointer.current.y - y
           const dist = Math.sqrt(dx * dx + dy * dy)
-          const hoverRadius = 120
+          const hoverRadius = 140
           const nearPointer = dist < hoverRadius
 
           let alpha = baseAlpha
-          let dotSize = 1.5
+          let dotSize = 2.4 // Halka sa bada dots as requested
 
           if (nearPointer) {
             const factor = 1 - dist / hoverRadius
-            alpha = Math.min(1, baseAlpha + factor * 0.6)
-            dotSize = 1.5 + factor * 1.5
+            alpha = Math.min(1, baseAlpha + factor * 0.65)
+            dotSize = 2.4 + factor * 2.2
           } else if (res > 0.01) {
             // Highlights scanline structure when resolving
             const rowHighlight = (r % 2 === 0 ? 0.08 : 0) * res

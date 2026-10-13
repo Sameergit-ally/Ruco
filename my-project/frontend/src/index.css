@@ -70,6 +70,9 @@
   --font-dot: 'Doto', ui-monospace, monospace;
   --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'Geist Mono', ui-monospace, monospace;
+  --font-serif: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
+  --font-luxury: 'Cormorant Garamond', Georgia, serif;
+  --font-script: 'Italianno', cursive, serif;
 
   /* Desktop sizes; phones step the display sizes down below. */
   --text-count: 6rem;

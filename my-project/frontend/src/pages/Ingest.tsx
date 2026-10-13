@@ -75,24 +75,28 @@ export function Ingest() {
       />
 
       <div className="max-w-2xl">
-        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3 py-1 font-mono text-micro text-graphite shadow-sm backdrop-blur-md">
-          <span className="size-1.5 rounded-full bg-[#6d001a] shadow-[0_0_8px_#9e1432]" />
-          <span>Local-first AI</span>
-          <span className="text-pencil">·</span>
-          <span>Zero telemetry</span>
-          <span className="text-pencil">·</span>
-          <span>No watermarks</span>
+        <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-3.5 py-1 font-mono text-[0.72rem] tracking-widest uppercase text-pencil shadow-sm backdrop-blur-md">
+          <span className="size-1.5 rounded-full bg-[#6d001a] shadow-[0_0_8px_#e5476a]" />
+          <span className="text-graphite font-medium">AI AUTOCLIP ENGINE</span>
+          <span className="text-white/20">—</span>
+          <span>LOCAL · PRIVATE · 4K</span>
         </div>
 
-        <h1 className="mt-5 font-sans text-[2.75rem] font-black tracking-tight text-white sm:text-[3.5rem] leading-[1.08]">
-          Long video in.
-          <br />
-          <span className="bg-gradient-to-r from-white via-white/90 to-[#e5476a] bg-clip-text text-transparent">
-            Viral shorts out.
+        <h1 className="mt-5 font-['Playfair_Display'] text-[3.25rem] font-medium tracking-tight text-white sm:text-[4.5rem] leading-[0.98]">
+          <span className="block tracking-wide uppercase font-light text-white/95">
+            LONG VIDEO
+          </span>
+          <span className="flex items-baseline gap-3 mt-1">
+            <span className="font-['Italianno'] text-[3.8rem] sm:text-[5.2rem] font-normal lowercase tracking-normal text-[#e5476a] -translate-y-2 select-none italic">
+              into
+            </span>
+            <span className="tracking-wide uppercase font-bold bg-gradient-to-r from-white via-white/95 to-[#ffb3c1] bg-clip-text text-transparent">
+              VIRAL SHORTS
+            </span>
           </span>
         </h1>
-        <p className="mt-3 text-base text-graphite max-w-lg leading-relaxed">
-          Autonomous speaker tracking, intelligent multi-hook clip extraction, and synchronized captions powered by local Whisper and LLMs.
+        <p className="mt-4 font-['Cormorant_Garamond'] text-xl italic text-graphite/90 max-w-lg leading-relaxed">
+          Transform raw video into cinematic, high-retention vertical clips built to captivate and convert.
         </p>
       </div>
 
