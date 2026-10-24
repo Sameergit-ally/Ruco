@@ -3,7 +3,6 @@ import { Outlet, useLocation } from 'react-router-dom'
 
 import { api, type SystemStatus } from './api'
 import { MenuItem, NavbarMenu } from './components/velora/navbar-menu'
-import { Particles } from './components/velora/particles'
 import { STAGES } from './stages'
 
 const isWideFrame = (pathname: string) => pathname.endsWith('/clips')
@@ -19,9 +18,6 @@ export function App() {
 
   return (
     <>
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden text-brand/30">
-        <Particles quantity={70} />
-      </div>
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-control focus:bg-ink focus:px-3 focus:py-2 focus:text-sheet"

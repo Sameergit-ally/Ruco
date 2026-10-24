@@ -44,60 +44,53 @@
   --font-display: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
   --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
 
-  /* Spec Palette from Swatch:
-     Ivory: #F5F2EB (245 242 235)
-     Graphite: #1A202C (26 32 44)
-     Ocean Teal: #006D77 (0 109 119)
-     Terracotta: #E07A5F (224 122 95)
-     Sage: #A3B18A (163 177 138)
-     Lavender: #6D597A (109 89 122)
-  */
+  /* Warm cream neutrals (hue 40 — warm paper). */
+  --color-ink-900: oklch(0.985 0.008 80);
+  /* lightest — page background */
+  --color-ink-850: oklch(0.970 0.010 75);
+  /* card/sheet background */
+  --color-ink-800: oklch(0.945 0.012 70);
+  /* elevated sheet / muted bg */
+  --color-ink-700: oklch(0.885 0.014 65);
+  /* hairlines & borders */
+  --color-ink-600: oklch(0.780 0.012 60);
+  /* subtle dividers */
+  --color-ink-500: oklch(0.500 0.010 50);
+  /* pencil / placeholder */
+  --color-ink-400: oklch(0.400 0.008 45);
+  /* graphite */
+  --color-ink-300: oklch(0.340 0.006 40);
+  /* secondary text */
+  --color-ink-200: oklch(0.220 0.006 35);
+  /* primary text */
+  --color-ink-100: oklch(0.140 0.010 30);
+  /* headings & emphasis */
 
-  /* Neutrals built on Ivory base and Graphite ink */
-  --color-ink-900: #F5F2EB;   /* Ivory — page canvas */
-  --color-ink-850: #ECE8E0;   /* Slightly deeper ivory — card/sheet background */
-  --color-ink-800: #E2DDD3;   /* Elevated sheet / subtle tint */
-  --color-ink-700: #CFC9BD;   /* Hairlines & borders */
-  --color-ink-600: #B8B0A2;   /* Subtle dividers */
-  --color-ink-500: #8C8476;   /* Pencil / placeholder */
-  --color-ink-400: #5C5549;   /* Graphite light / tertiary */
-  --color-ink-300: #3E4654;   /* Graphite muted */
-  --color-ink-200: #252D3D;   /* Graphite deep body */
-  --color-ink-100: #1A202C;   /* Graphite — primary text & headings */
-
-  /* Palette Accents */
-  --color-ocean-teal: #006D77;
-  --color-terracotta: #E07A5F;
-  --color-sage: #A3B18A;
-  --color-lavender: #6D597A;
-  --color-graphite: #1A202C;
-  --color-ivory: #F5F2EB;
-
-  --color-signal-good: #006D77; /* Ocean teal for success/ready */
-  --color-signal-bad: #E07A5F;  /* Terracotta for errors/danger */
+  --color-signal-good: oklch(0.600 0.160 155);
+  --color-signal-bad: oklch(0.560 0.190 25);
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
 
-  /* Semantic aliases */
+  /* Legacy aliases for compatibility */
   --color-canvas: var(--color-ink-900);
   --color-sheet: var(--color-ink-850);
   --color-sheet-elevated: var(--color-ink-800);
   --color-ink: var(--color-ink-100);
-  --color-graphite-text: var(--color-ink-300);
+  --color-graphite: var(--color-ink-300);
   --color-pencil: var(--color-ink-500);
   --color-hairline: var(--color-ink-700);
   --color-hairline-strong: var(--color-ink-700);
   --color-void: var(--color-ink-900);
   --color-highlighter: var(--brand);
-  --color-highlighter-wash: color-mix(in srgb, var(--brand) 12%, var(--color-ink-850));
+  --color-highlighter-wash: color-mix(in oklab, var(--brand) 12%, var(--color-ink-850));
   --color-highlighter-bright: var(--brand-from);
   --color-stamp: var(--color-signal-good);
-  --color-stamp-wash: color-mix(in srgb, var(--color-signal-good) 12%, var(--color-ink-850));
-  --color-amber: #E07A5F;
-  --color-amber-wash: color-mix(in srgb, #E07A5F 12%, var(--color-ink-850));
+  --color-stamp-wash: color-mix(in oklab, var(--color-signal-good) 12%, var(--color-ink-850));
+  --color-amber: oklch(0.65 0.14 55);
+  --color-amber-wash: color-mix(in oklab, var(--color-amber) 12%, var(--color-ink-850));
   --color-brick: var(--color-signal-bad);
-  --color-brick-wash: color-mix(in srgb, var(--color-signal-bad) 12%, var(--color-ink-850));
+  --color-brick-wash: color-mix(in oklab, var(--color-signal-bad) 12%, var(--color-ink-850));
 
   --font-dot: var(--font-sans);
   --font-serif: var(--font-display);
@@ -132,21 +125,21 @@
   --radius-panel: 16px;
   --radius-sheet: 20px;
 
-  /* Soft elevation for ivory canvas with graphite and ocean teal shadows */
-  --shadow-raised: 0 0 0 1px rgb(26 32 44 / 0.07), 0 20px 48px -12px rgb(26 32 44 / 0.12);
+  /* Soft elevation for light mode — warm subtle shadows. */
+  --shadow-raised: 0 0 0 1px rgb(0 0 0 / 0.06), 0 20px 48px -12px rgb(0 0 0 / 0.12);
 
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
   --animate-row-in: row-in 320ms var(--ease-standard) both;
 }
 
-/* Motion & Theme tokens */
+/* Motion: three durations, one easing (--ease-standard). */
 :root {
-  /* Brand: Ocean Teal to Terracotta with Lavender accent */
-  --brand-from: #006D77;
-  --brand-via: #1A202C;
-  --brand-to: #E07A5F;
-  --brand: #006D77;
+  /* Brand: warm editorial charcoal → terracotta → ink */
+  --brand-from: oklch(0.200 0.012 30);
+  --brand-via: oklch(0.160 0.010 25);
+  --brand-to: oklch(0.500 0.080 40);
+  --brand: var(--brand-via);
 
   --background: var(--color-ink-900);
   --foreground: var(--color-ink-100);
@@ -154,18 +147,18 @@
   --card-foreground: var(--color-ink-100);
   --popover: var(--color-ink-850);
   --popover-foreground: var(--color-ink-100);
-  --primary: #006D77;
-  --primary-foreground: #F5F2EB;
+  --primary: var(--brand);
+  --primary-foreground: var(--color-ink-900);
   --secondary: var(--color-ink-800);
   --secondary-foreground: var(--color-ink-100);
   --muted: var(--color-ink-800);
   --muted-foreground: var(--color-ink-300);
-  --accent: var(--color-sage);
-  --accent-foreground: #1A202C;
-  --destructive: #E07A5F;
+  --accent: var(--color-ink-800);
+  --accent-foreground: var(--color-ink-100);
+  --destructive: var(--color-signal-bad);
   --border: var(--color-ink-700);
   --input: var(--color-ink-700);
-  --ring: #006D77;
+  --ring: var(--brand);
 
   --duration-fast: 120ms;
   --duration-base: 200ms;
@@ -173,7 +166,13 @@
 }
 
 @layer base {
-  *, ::before, ::after { border-color: var(--border); }
+
+  *,
+  ::before,
+  ::after {
+    border-color: var(--border);
+  }
+
   html {
     color-scheme: light;
   }
@@ -224,29 +223,32 @@
     width: 10px;
     height: 10px;
   }
+
   ::-webkit-scrollbar-track {
     background: var(--color-canvas);
   }
+
   ::-webkit-scrollbar-thumb {
     background: var(--color-hairline-strong);
     border: 3px solid var(--color-canvas);
     border-radius: 99px;
   }
+
   ::-webkit-scrollbar-thumb:hover {
     background: var(--color-pencil);
   }
 }
 
-/* A floating panel: frosted ivory over a blur with a subtle inner border and soft graphite shadow. */
+/* A floating panel: warm frosted cream over a blur with a subtle inner border and soft shadow. */
 @utility frost {
-  background: linear-gradient(135deg, rgba(245, 242, 235, 0.88) 0%, rgba(250, 248, 242, 0.94) 100%);
+  background: linear-gradient(135deg, rgba(250, 246, 240, 0.85) 0%, rgba(255, 252, 248, 0.92) 100%);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(26, 32, 44, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.8),
-    0 12px 36px -8px rgba(26, 32, 44, 0.09),
-    0 0 40px -10px rgba(0, 109, 119, 0.06);
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 12px 36px -8px rgba(0, 0, 0, 0.1),
+    0 0 40px -10px rgba(180, 160, 140, 0.08);
 }
 
 /* A retro bevel: elevated warm edge; pressing inverts it. */
@@ -256,6 +258,7 @@
     inset 1px 1px 0 rgb(255 255 255 / 0.6),
     inset -1px -1px 0 rgb(0 0 0 / 0.08),
     0 0 0 1px var(--color-hairline-strong);
+
   &:active:not(:disabled),
   &[aria-pressed='true'],
   &[data-state='open'] {
@@ -268,6 +271,7 @@
 }
 
 @layer components {
+
   /* Found words behind the signal: white text on a charcoal stamp. */
   .mark {
     background: var(--color-highlighter);
@@ -278,6 +282,7 @@
     -webkit-box-decoration-break: clone;
     color: #ffffff;
   }
+
   @media (forced-colors: active) {
     .mark {
       text-decoration: underline 3px;
@@ -286,67 +291,80 @@
 
   /* Small mono label above a field or section. Sentence case, no tracking. */
   .label {
-    @apply font-mono text-micro text-graphite-text;
+    @apply font-mono text-micro text-graphite;
   }
 
-  /* Buttons are editorial styled: Primary is Ocean Teal with crisp white text. */
+  /* Buttons are editorial styled: Primary is rich charcoal with crisp white text. */
   .btn {
     @apply inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-control px-4 font-mono text-small font-medium whitespace-nowrap transition-all duration-(--duration-fast) select-none disabled:cursor-not-allowed;
   }
+
   .btn-sm {
     @apply h-8 px-3 text-micro;
   }
+
   .btn-lg {
     @apply h-11 px-6 text-[0.95rem];
   }
+
   .btn-primary {
     background: var(--brand);
     color: var(--primary-foreground);
-    @apply font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_4px_16px_color-mix(in_srgb,var(--brand)_30%,transparent)] active:scale-[0.98] active:shadow-none disabled:bg-none disabled:bg-hairline-strong disabled:text-pencil disabled:shadow-none disabled:scale-100;
+    @apply font-semibold shadow-[inset_0_1px_0_rgba(255, 255, 255, 0.15), 0_4px_16px_color-mix(in_oklab, var(--brand)_40%, transparent)] active:scale-[0.98] active:shadow-none disabled:bg-none disabled:bg-hairline-strong disabled:text-pencil disabled:shadow-none disabled:scale-100;
   }
+
   .btn-primary:hover:not(:disabled) {
-    background: color-mix(in srgb, var(--brand) 88%, black);
+    background: color-mix(in oklab, var(--brand) 82%, transparent);
   }
+
   .numeric {
     font-variant-numeric: tabular-nums;
   }
+
   .btn-secondary {
-    @apply bevel text-ink hover:bg-hairline hover:border-graphite-text disabled:bg-sheet disabled:text-pencil;
+    @apply bevel text-ink hover:bg-hairline hover:border-graphite disabled:bg-sheet disabled:text-pencil;
   }
+
   .btn-quiet {
-    @apply text-graphite-text hover:bg-black/6 hover:text-ink active:bg-black/10 disabled:bg-transparent disabled:text-pencil;
+    @apply text-graphite hover:bg-black/6 hover:text-ink active:bg-black/10 disabled:bg-transparent disabled:text-pencil;
   }
+
   .btn-danger {
     @apply bevel text-brick hover:bg-brick-wash disabled:bg-sheet disabled:text-pencil;
   }
 
-  /* A hairline field, slightly sunk; focus draws it with a teal halo. */
+  /* A hairline field, slightly sunk; focus draws it with a charcoal halo. */
   .field {
-    @apply h-10 w-full rounded-control border border-hairline-strong bg-sheet px-3 text-small text-ink shadow-[inset_0_1px_2px_rgb(0_0_0/0.04)] transition-[border-color,box-shadow] duration-(--duration-fast) hover:border-graphite-text focus-visible:border-foreground focus-visible:ring-4 focus-visible:ring-highlighter/20 focus-visible:outline-none aria-invalid:border-brick disabled:border-hairline disabled:bg-canvas disabled:text-pencil;
+    @apply h-10 w-full rounded-control border border-hairline-strong bg-sheet px-3 text-small text-ink shadow-[inset_0_1px_2px_rgb(0_0_0/0.04)] transition-[border-color, box-shadow] duration-(--duration-fast) hover:border-graphite focus-visible:border-foreground focus-visible:ring-4 focus-visible:ring-highlighter/20 focus-visible:outline-none aria-invalid:border-brick disabled:border-hairline disabled:bg-canvas disabled:text-pencil;
   }
 
   /* Mono pills led by a 6px square dot (one cell of the dot matrix). */
   .badge {
-    @apply inline-flex items-center gap-1.5 rounded-full bg-black/6 px-2.5 py-0.5 font-mono text-micro whitespace-nowrap text-graphite-text before:size-1.5 before:shrink-0 before:bg-current;
+    @apply inline-flex items-center gap-1.5 rounded-full bg-black/6 px-2.5 py-0.5 font-mono text-micro whitespace-nowrap text-graphite before:size-1.5 before:shrink-0 before:bg-current;
   }
+
   .badge-sure {
     @apply bg-stamp-wash text-stamp;
   }
+
   .badge-check {
     @apply bg-amber-wash text-amber;
   }
+
   .badge-error {
     @apply bg-brick-wash text-brick;
   }
+
   .badge-chosen {
     @apply bg-highlighter text-white;
   }
 
   /* A choice as a flat tile; the chosen tile fills with signal and a square fills too. */
   .tile {
-    @apply relative flex h-full cursor-pointer flex-col items-start gap-1 rounded-control border border-hairline-strong bg-sheet py-3 pr-8 pl-item text-left transition-colors duration-(--duration-fast) after:absolute after:top-4 after:right-3.5 after:size-2 after:border after:border-graphite-text hover:border-graphite-text has-checked:border-foreground has-checked:bg-highlighter has-checked:after:border-white has-checked:after:bg-white has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-foreground has-disabled:cursor-not-allowed has-disabled:opacity-50;
+    @apply relative flex h-full cursor-pointer flex-col items-start gap-1 rounded-control border border-hairline-strong bg-sheet py-3 pr-8 pl-item text-left transition-colors duration-(--duration-fast) after:absolute after:top-4 after:right-3.5 after:size-2 after:border after:border-graphite hover:border-graphite has-checked:border-foreground has-checked:bg-highlighter has-checked:after:border-white has-checked:after:bg-white has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-foreground has-disabled:cursor-not-allowed has-disabled:opacity-50;
   }
-  /* Text inside the chosen tile turns white; the signal sits behind it. */
+
+  /* Text inside the chosen tile turns white; the charcoal signal sits behind it. */
   .tile:has(:checked) * {
     color: #ffffff;
   }
@@ -355,10 +373,12 @@
   .switch {
     @apply inline-flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full bg-hairline-strong p-[3px] shadow-[inset_0_1px_2px_rgb(0_0_0/0.08)] transition-colors duration-(--duration-base) aria-checked:bg-highlighter disabled:cursor-not-allowed disabled:opacity-50;
   }
-  .switch > span {
-    @apply block size-4.5 rounded-full bg-white shadow-[0_1px_2px_rgb(0_0_0/0.1)] transition-[translate,background-color] duration-(--duration-base) ease-(--ease-standard);
+
+  .switch>span {
+    @apply block size-4.5 rounded-full bg-white shadow-[0_1px_2px_rgb(0_0_0/0.1)] transition-[translate, background-color] duration-(--duration-base) ease-(--ease-standard);
   }
-  .switch[aria-checked='true'] > span {
+
+  .switch[aria-checked='true']>span {
     @apply translate-x-4;
   }
 
@@ -366,8 +386,9 @@
   .segments {
     @apply flex max-w-full gap-0.5 overflow-x-auto rounded-full border border-hairline-strong bg-sheet p-0.5;
   }
-  .segments > button {
-    @apply h-8 shrink-0 rounded-full px-3 font-mono text-small whitespace-nowrap text-graphite-text hover:text-ink aria-pressed:bg-highlighter aria-pressed:text-white aria-pressed:hover:text-white;
+
+  .segments>button {
+    @apply h-8 shrink-0 rounded-full px-3 font-mono text-small whitespace-nowrap text-graphite hover:text-ink aria-pressed:bg-highlighter aria-pressed:text-white aria-pressed:hover:text-white;
   }
 
   /* A slip of quoted source text: mono on sheet, found words behind `.mark`. */
@@ -377,7 +398,7 @@
 
   /* A data table: mono headers on a 2px ink rule, hairline rows, no zebra. */
   .data-head {
-    @apply border-b-2 border-hairline-strong font-mono text-micro text-graphite-text;
+    @apply border-b-2 border-hairline-strong font-mono text-micro text-graphite;
   }
 }
 
@@ -387,6 +408,7 @@
     transform: translateY(6px);
     background-color: var(--color-highlighter-wash);
   }
+
   to {
     opacity: 1;
     transform: none;
@@ -394,6 +416,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -426,19 +449,18 @@
   --color-brand-from: var(--brand-from);
   --color-brand-via: var(--brand-via);
   --color-brand-to: var(--brand-to);
-  --color-ocean-teal: var(--color-ocean-teal);
-  --color-terracotta: var(--color-terracotta);
-  --color-sage: var(--color-sage);
-  --color-lavender: var(--color-lavender);
-  --color-ivory: var(--color-ivory);
 
   --animate-flicker: flicker 3s steps(1, end) infinite;
+
   @keyframes flicker {
-  0%, 100% {
-    opacity: var(--flicker-max, 0.45);
+
+    0%,
+    100% {
+      opacity: var(--flicker-max, 0.45);
     }
-  50% {
-    opacity: var(--flicker-min, 0.08);
+
+    50% {
+      opacity: var(--flicker-min, 0.08);
     }
   }
 }
