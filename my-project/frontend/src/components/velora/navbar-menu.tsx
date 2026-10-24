@@ -53,7 +53,7 @@ export function NavbarMenu({
           }
         }}
         className={cn(
-          "relative flex items-center gap-1 rounded-full border bg-background/80 px-3 py-1.5 backdrop-blur-md",
+          "relative flex items-center gap-1 rounded-full border border-border/60 bg-background/90 px-3 py-1.5 shadow-sm backdrop-blur-md",
           className
         )}
       >
@@ -143,7 +143,7 @@ export function MenuItem({
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 6, scale: 0.97 }}
             transition={{ duration: reducedMotion ? 0 : 0.18, ease: "easeOut" }}
-            className="absolute left-1/2 top-full z-50 mt-3 w-max -translate-x-1/2 rounded-2xl border bg-popover p-3 text-popover-foreground shadow-xl shadow-foreground/5"
+            className="absolute left-1/2 top-full z-50 mt-3 w-max -translate-x-1/2 rounded-2xl border border-border/60 bg-popover p-3 text-popover-foreground shadow-lg shadow-black/8"
           >
             {children}
           </motion.div>

@@ -9,9 +9,20 @@ import {
   type JobSettingsOverrides,
   type ProviderStatus,
 } from '../api'
-import { DotField } from '../components/DotField'
 import { ErrorNote } from '../components/ErrorNote'
+import { PipelineDiagram } from '../components/PipelineDiagram'
 import { JOB_STATUS_LABEL, StatusDot } from '../components/StatusDot'
+import { BlurFade } from '../components/velora/blur-fade'
+import { FlickeringGrid } from '../components/velora/flickering-grid'
+import { Globe } from '../components/velora/globe'
+import { HeroParallax } from '../components/velora/hero-parallax'
+import { SpinnerLoader } from '../components/velora/loaders'
+import { TextHoverEffect } from '../components/velora/text-hover-effect'
+import { loadShowcase, type ShowcaseClip } from '../lib/showcase'
+import { STAGES } from '../stages'
+
+const IDLE_STATES = STAGES.map(() => 'done' as const)
+const SHOWCASE_MIN = 6
 
 export function Ingest() {
   const navigate = useNavigate()
@@ -19,6 +30,7 @@ export function Ingest() {
   const [busy, setBusy] = useState<'url' | 'file' | null>(null)
   const [error, setError] = useState<ApiError | Error | null>(null)
   const [jobs, setJobs] = useState<Job[]>([])
+  const [showcase, setShowcase] = useState<ShowcaseClip[]>([])
   const [providers, setProviders] = useState<ProviderStatus[]>([])
   const [overrides, setOverrides] = useState<JobSettingsOverrides>({})
   const [advancedOpen, setAdvancedOpen] = useState(false)
@@ -26,7 +38,13 @@ export function Ingest() {
   const fileInput = useRef<HTMLInputElement>(null)
 
   useEffect(() => {
-    api.listJobs(8).then(setJobs).catch(() => undefined)
+    api
+      .listJobs(50)
+      .then(async (all) => {
+        setJobs(all.slice(0, 8))
+        setShowcase(await loadShowcase(all))
+      })
+      .catch(() => undefined)
     api.providerStatus().then(setProviders).catch(() => undefined)
   }, [])
 
@@ -60,72 +78,38 @@ export function Ingest() {
   const isOllama = activeProviderName.toLowerCase() === 'ollama'
 
   return (
-    <div className="relative pt-4 sm:pt-6">
-      {/* Luxury Ambient Radial Glow (Burgundy to Black) */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -top-24 left-1/4 -z-10 h-[500px] w-full max-w-[700px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse_at_center,rgba(109,0,26,0.22)_0%,rgba(109,0,26,0.06)_45%,transparent_70%)] blur-3xl"
-      />
-
-      {/* Shader dots on the RIGHT side as requested */}
-      <DotField
-        tone="ink"
-        interactive
-        className="pointer-events-none -mx-4 -mt-stack -mb-group h-56 [mask-image:linear-gradient(to_bottom,black_40%,transparent)] sm:mx-0 sm:-mt-section lg:fixed lg:inset-y-0 lg:right-0 lg:-z-10 lg:m-0 lg:h-auto lg:w-1/2 lg:[mask-image:linear-gradient(to_right,transparent,black_40%)]"
-      />
-
-      {/* Extreme Left Content Column: Hero + Forms stacked vertically */}
-      <div className="max-w-xl xl:max-w-2xl">
-        {/* Editorial Title & Badges */}
-        <div>
-          <div className="inline-flex items-center gap-2.5 rounded-full border border-white/10 bg-white/5 px-3.5 py-1 font-mono text-[0.72rem] tracking-widest uppercase text-pencil shadow-sm backdrop-blur-md">
-            <span className="size-1.5 rounded-full bg-[#6d001a] shadow-[0_0_8px_#e5476a]" />
-            <span className="text-graphite font-semibold">AI AUTOCLIP ENGINE</span>
-            <span className="text-white/20">—</span>
-            <span>LOCAL · 4K · PRIVATE</span>
-          </div>
-
-          <h1 className="mt-5 font-['Playfair_Display'] text-[3.25rem] font-medium tracking-tight text-white sm:text-[4.25rem] leading-[0.98]">
-            <span className="block tracking-wide uppercase font-light text-white/95">
-              LONG VIDEO
-            </span>
-            <span className="flex items-baseline gap-3 mt-1">
-              <span className="font-['Italianno'] text-[3.8rem] sm:text-[5.2rem] font-normal lowercase tracking-normal text-[#e5476a] -translate-y-2 select-none italic">
-                into
-              </span>
-              <span className="tracking-wide uppercase font-bold bg-gradient-to-r from-white via-white/95 to-[#ffb3c1] bg-clip-text text-transparent">
-                VIRAL SHORTS
-              </span>
-            </span>
+    <div>
+      <section className="relative overflow-hidden rounded-panel px-4 py-10 sm:px-8 sm:py-14">
+        <FlickeringGrid
+          squareSize={8}
+          gap={24}
+          columns={44}
+          rows={20}
+          className="text-brand/15 [mask-image:radial-gradient(60%_70%_at_30%_40%,black,transparent)]"
+        />
+        <div className="relative max-w-xl">
+          <BlurFade>
+            <p className="text-micro font-medium tracking-[0.2em] text-muted-foreground uppercase">
+              Local · no accounts · no watermarks
+            </p>
+          </BlurFade>
+          <h1 className="mt-4 font-display text-display font-bold text-foreground text-balance tracking-tight">
+            Long video in.{' '}
+            <span className="italic">
+              Shorts
+            </span>{' '}
+            out.
           </h1>
 
-          <p className="mt-4 font-['Cormorant_Garamond'] text-xl italic text-graphite max-w-lg leading-relaxed">
-            Transform raw video into cinematic, high-retention vertical clips built to captivate and convert.
-          </p>
-        </div>
-
-        {/* Inputs directly under text on extreme left */}
-        <div className="mt-9 space-y-5">
-          {/* URL Form inside high-end glow-card */}
-          <section>
-            <form
-              onSubmit={submitUrl}
-              className="glow-card rounded-panel p-5 transition-all duration-200 focus-within:border-[#9e1432]/60 focus-within:shadow-[inset_0_1px_0_rgba(255,255,255,0.2),0_18px_48px_-10px_rgba(0,0,0,0.9),0_0_35px_rgba(109,0,26,0.4)]"
-            >
-              <div className="flex items-center justify-between">
-                <label htmlFor="url" className="flex items-center gap-2 font-mono text-micro font-medium text-graphite uppercase tracking-wider">
-                  <svg className="size-3.5 text-[#e5476a]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                  </svg>
-                  Paste Video Link
-                </label>
-                <span className="font-mono text-micro text-pencil">YouTube · Vimeo · MP4</span>
-              </div>
-
-              <div className="relative mt-3">
+          <BlurFade delay={0.08}>
+            <form onSubmit={submitUrl} className="mt-8 space-y-3">
+              <label htmlFor="url" className="label">
+                Paste a link
+              </label>
+              <div className="flex flex-col gap-3 sm:flex-row">
                 <input
                   id="url"
-                  className="w-full rounded-control border border-white/10 bg-black/40 px-3.5 py-3 font-sans text-base text-white placeholder:text-pencil focus:border-white/30 focus:bg-black/60 focus:outline-none transition-colors"
+                  className="field flex-1"
                   placeholder="https://youtube.com/watch?v=…"
                   value={url}
                   onChange={(e) => setUrl(e.target.value)}
@@ -133,14 +117,6 @@ export function Ingest() {
                   spellCheck={false}
                   disabled={busy !== null}
                 />
-              </div>
-
-              <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
-                <span className="font-mono text-micro text-pencil">
-                  {isOllama
-                    ? '⚡ Free · runs 100% on this machine'
-                    : `Sends transcript text to ${activeProviderName}.`}
-                </span>
                 <button
                   type="submit"
                   className="btn btn-primary btn-lg"
@@ -148,30 +124,23 @@ export function Ingest() {
                 >
                   {busy === 'url' ? (
                     <span className="flex items-center gap-2">
-                      <span className="size-3 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                      Fetching…
+                      <SpinnerLoader size="sm" className="text-current" label="Starting" />
+                      Starting…
                     </span>
                   ) : (
-                    <span className="flex items-center gap-2">
-                      <span>Generate Clips</span>
-                      <span className="text-white/60">→</span>
-                    </span>
+                    'Start'
                   )}
                 </button>
               </div>
+              <p className="text-micro text-muted-foreground">
+                {isOllama
+                  ? 'Runs on this machine. Nothing is sent.'
+                  : `Sends transcript text to ${activeProviderName}.`}
+              </p>
             </form>
+          </BlurFade>
 
-            <AdvancedOptions
-              open={advancedOpen}
-              onToggle={() => setAdvancedOpen((v) => !v)}
-              overrides={overrides}
-              onChange={setOverrides}
-              providers={providers}
-            />
-          </section>
-
-          {/* Upload Drop Zone */}
-          <section>
+          <BlurFade delay={0.16}>
             <div
               onDragOver={(e) => {
                 e.preventDefault()
@@ -185,10 +154,8 @@ export function Ingest() {
                 if (file) submitFile(file)
               }}
               className={[
-                'glow-card flex min-h-36 cursor-pointer flex-col items-center justify-center gap-2 rounded-panel border border-dashed p-6 text-center transition-all duration-base group',
-                dragging
-                  ? 'border-[#e5476a] bg-[rgba(109,0,26,0.2)] shadow-[0_0_30px_rgba(109,0,26,0.3)]'
-                : 'border-white/15 hover:border-white/30',
+                'mt-5 flex min-h-32 cursor-pointer flex-col items-center justify-center gap-2 rounded-panel border border-dashed p-6 text-center',
+                dragging ? 'border-brand bg-brand/10' : 'border-border hover:border-brand/50',
               ].join(' ')}
               onClick={() => fileInput.current?.click()}
               role="button"
@@ -197,19 +164,12 @@ export function Ingest() {
                 if (e.key === 'Enter' || e.key === ' ') fileInput.current?.click()
               }}
             >
-              <div className="flex size-11 items-center justify-center rounded-full border border-white/10 bg-white/5 transition-transform duration-200 group-hover:scale-110 group-hover:border-[#e5476a]/40 group-hover:bg-[#6d001a]/20">
-                <svg className="size-5 text-graphite group-hover:text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="1.75">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                </svg>
-              </div>
-              <div className="mt-1">
-                <span className="text-base font-medium text-white transition-colors group-hover:text-white">
-                  {busy === 'file' ? 'Uploading media…' : 'Drop video or audio here'}
-                </span>
-                <p className="mt-0.5 font-mono text-micro text-pencil">
-                  MP4 · MOV · MKV · WEBM · MP3 · WAV · M4A
-                </p>
-              </div>
+              <span className="text-body font-medium">
+                {busy === 'file' ? 'Uploading…' : 'Drop a file'}
+              </span>
+              <p className="numeric text-micro text-muted-foreground">
+                MP4 · MOV · MKV · WEBM · MP3 · WAV · M4A
+              </p>
             </div>
             <input
               ref={fileInput}
@@ -222,9 +182,17 @@ export function Ingest() {
                 e.target.value = ''
               }}
             />
-          </section>
+          </BlurFade>
+
+          <AdvancedOptions
+            open={advancedOpen}
+            onToggle={() => setAdvancedOpen((v) => !v)}
+            overrides={overrides}
+            onChange={setOverrides}
+            providers={providers}
+          />
         </div>
-      </div>
+      </section>
 
       {error && (
         <div className="mt-8 max-w-xl">
@@ -242,6 +210,46 @@ export function Ingest() {
           .
         </p>
       )}
+
+      <BlurFade delay={0.24} className="mt-12">
+        <TextHoverEffect text="RUCO" className="mx-auto w-full max-w-5xl font-sans font-black" />
+      </BlurFade>
+
+      <BlurFade delay={0.32} className="mt-4">
+        <PipelineDiagram steps={STAGES} states={IDLE_STATES} />
+      </BlurFade>
+
+      {showcase.length >= SHOWCASE_MIN && (
+        <section className="-mx-6 mt-16 lg:-mx-10">
+          <HeroParallax
+            products={showcase.map((clip) => ({
+              title: clip.title,
+              video: clip.video,
+              href: clip.href,
+              image: '',
+            }))}
+            cardClassName="aspect-[9/16] w-40 sm:w-44"
+          >
+            <h2 className="font-display text-title font-bold tracking-tight text-foreground">Your clips</h2>
+          </HeroParallax>
+        </section>
+      )}
+
+      <BlurFade className="mt-16 grid items-center gap-10 lg:grid-cols-2">
+        <div>
+          <h2 className="font-display text-title font-bold tracking-tight text-foreground">Everything stays on your machine.</h2>
+          <p className="mt-3 max-w-prose text-body text-muted-foreground leading-relaxed">
+            No accounts. No watermarks. Only transcript text is ever sent to a cloud
+            provider if you pick one. With Ollama, nothing leaves the machine.
+          </p>
+        </div>
+        <Globe
+          className="mx-auto w-full max-w-sm"
+          markers={[{ lat: 0, lng: 0, label: 'This machine' }]}
+          arcs={[]}
+          label="Decorative globe"
+        />
+      </BlurFade>
 
       <RecentJobs jobs={jobs} />
     </div>
@@ -266,7 +274,7 @@ function AdvancedOptions({
 
   return (
     <div className="mt-6">
-      <button type="button" onClick={onToggle} className="btn btn-quiet btn-sm -ml-2 text-graphite">
+      <button type="button" onClick={onToggle} className="btn btn-quiet btn-sm -ml-2">
         <span
           className="inline-block transition-transform duration-base ease-(--ease-standard)"
           style={{ transform: open ? 'rotate(90deg)' : 'none' }}
@@ -274,7 +282,7 @@ function AdvancedOptions({
         >
           ›
         </span>
-        {open ? 'Hide options' : 'Options'}
+        {open ? 'Hide options' : 'Advanced options'}
       </button>
 
       <div
@@ -335,7 +343,7 @@ function AdvancedOptions({
                 onChange={(v) => set('max_duration_s', v)}
               />
             </div>
-            <label className="flex items-center gap-3 font-mono text-small text-graphite sm:col-span-2">
+            <label className="flex items-center gap-3 text-small text-muted-foreground sm:col-span-2">
               <button
                 type="button"
                 role="switch"
@@ -419,51 +427,43 @@ function RecentJobs({ jobs }: { jobs: Job[] }) {
 
   return (
     <section className="mt-16">
-      <div className="flex items-baseline justify-between pb-3">
-        <h2 className="font-mono text-micro uppercase tracking-wider text-graphite">Recent Video Exports</h2>
-        <span className="font-mono text-micro tabular text-pencil">{jobs.length} jobs</span>
-      </div>
-
-      <div className="overflow-hidden rounded-panel border border-white/10 bg-black/40 backdrop-blur-md shadow-xl">
-        <div
-          aria-hidden
-          className="hidden border-b border-white/10 bg-white/5 px-group py-3 font-mono text-micro text-pencil sm:grid sm:grid-cols-[minmax(0,1fr)_11rem_5rem_6rem] gap-x-group"
-        >
-          <span>Title</span>
-          <span>Status</span>
-          <span className="text-right">Length</span>
-          <span className="text-right">Engine</span>
+      <BlurFade>
+        <div className="flex items-baseline justify-between pb-3">
+          <h2 className="text-micro uppercase tracking-wider text-muted-foreground">Recent runs</h2>
+          <span className="numeric text-micro text-muted-foreground">{jobs.length} jobs</span>
         </div>
+      </BlurFade>
 
-        <ul className="divide-y divide-white/5">
-          {jobs.map((job) => (
-            <li key={job.id} className="animate-row-in">
+      <ul className="divide-y divide-border overflow-hidden rounded-panel border border-border bg-card">
+        {jobs.map((job, i) => (
+          <li key={job.id}>
+            <BlurFade delay={Math.min(i * 0.08, 0.5)}>
               <Link
                 to={job.status === 'done' ? `/jobs/${job.id}/clips` : `/jobs/${job.id}`}
-                className="grid grid-cols-[1fr_auto] items-center gap-x-group px-group py-3.5 transition-colors duration-fast hover:bg-white/5 sm:grid-cols-[minmax(0,1fr)_11rem_5rem_6rem]"
+                className="grid grid-cols-[1fr_auto] items-center gap-x-group px-group py-3.5 transition-colors hover:bg-muted sm:grid-cols-[minmax(0,1fr)_11rem_5rem_6rem]"
               >
-                <span className="truncate font-medium text-white hover:text-[#e5476a] transition-colors">
+                <span className="truncate font-medium text-foreground">
                   {job.source?.title || 'Untitled Video'}
                 </span>
-                <span className="flex items-center gap-2 font-mono text-small">
+                <span className="flex items-center gap-2 text-small">
                   <StatusDot status={job.status} />
-                  <span className="text-graphite">
+                  <span className="text-muted-foreground">
                     {job.status === 'running'
                       ? `Running · ${Math.round(job.progress * 100)}%`
                       : JOB_STATUS_LABEL[job.status]}
                   </span>
                 </span>
-                <span className="hidden text-right font-mono text-small tabular text-pencil sm:block">
+                <span className="numeric hidden text-right text-small text-muted-foreground sm:block">
                   {job.source ? formatDuration(job.source.duration_s) : '—'}
                 </span>
-                <span className="hidden text-right font-mono text-small tabular text-pencil sm:block">
+                <span className="numeric hidden text-right text-small text-muted-foreground sm:block">
                   {job.provider}
                 </span>
               </Link>
-            </li>
-          ))}
-        </ul>
-      </div>
+            </BlurFade>
+          </li>
+        ))}
+      </ul>
     </section>
   )
 }

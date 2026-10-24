@@ -14,8 +14,10 @@ import {
 import { CaptionEditor } from '../components/CaptionEditor'
 import { ClipPlayer } from '../components/ClipPlayer'
 import { ErrorNote } from '../components/ErrorNote'
-import { FallingCat } from '../components/FallingCat'
 import { TrimBar } from '../components/TrimBar'
+import { BlurFade } from '../components/velora/blur-fade'
+import { FlickeringGrid } from '../components/velora/flickering-grid'
+import { SpinnerLoader } from '../components/velora/loaders'
 
 const RATIOS = ['9:16', '1:1', '16:9'] as const
 
@@ -146,7 +148,13 @@ export function Review() {
     )
   }
 
-  if (!job) return <FallingCat className="min-h-[50vh]" />
+  if (!job) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <SpinnerLoader size="lg" className="text-brand" label="Loading clips" />
+      </div>
+    )
+  }
 
   return (
     <div className="pt-2 sm:pt-4">
@@ -159,7 +167,7 @@ export function Review() {
           >
             ← All jobs
           </Link>
-          <h1 className="mt-1 font-dot text-title font-black text-ink text-balance line-clamp-2">
+          <h1 className="mt-1 font-display text-title font-bold tracking-tight text-foreground text-balance line-clamp-2">
             {job.source?.title || 'Untitled'}
           </h1>
         </div>
@@ -173,7 +181,14 @@ export function Review() {
             disabled={keptCount === 0}
             className="btn btn-primary"
           >
-            Export kept
+            {clips.some((c) => exporting.has(c.id) && c.status === 'kept') ? (
+              <span className="flex items-center gap-2">
+                <SpinnerLoader size="sm" className="text-current" label="Exporting" />
+                Exporting…
+              </span>
+            ) : (
+              'Export kept'
+            )}
           </button>
         </div>
       </div>
@@ -202,7 +217,8 @@ export function Review() {
 
             <ul className="divide-y divide-hairline">
               {clips.map((clip, index) => (
-                <li key={clip.id} className="animate-row-in">
+                <li key={clip.id}>
+                  <BlurFade delay={Math.min(index * 0.08, 0.5)}>
                   <ClipRow
                     clip={clip}
                     index={index}
@@ -215,6 +231,7 @@ export function Review() {
                       setStatus(clip, clip.status === 'discarded' ? 'candidate' : 'discarded')
                     }
                   />
+                  </BlurFade>
                 </li>
               ))}
             </ul>
@@ -344,7 +361,14 @@ export function Review() {
                     disabled={exporting.has(selected.id)}
                     className="btn btn-secondary w-full"
                   >
-                    {exporting.has(selected.id) ? 'Rendering…' : 'Export this clip'}
+                    {exporting.has(selected.id) ? (
+                      <span className="flex items-center gap-2">
+                        <SpinnerLoader size="sm" className="text-current" label="Rendering" />
+                        Rendering…
+                      </span>
+                    ) : (
+                      'Export this clip'
+                    )}
                   </button>
 
                   {selected.exports.length > 0 && (
@@ -462,13 +486,20 @@ function ClipRow({
 
 function EmptyState() {
   return (
-    <div className="max-w-xl space-y-item py-section">
-      <h2 className="text-title font-semibold text-ink">No clips came back.</h2>
-      <p className="text-body text-graphite leading-relaxed">
+    <div className="relative max-w-xl space-y-item overflow-hidden py-section">
+      <FlickeringGrid
+        squareSize={8}
+        gap={16}
+        columns={20}
+        rows={8}
+        className="text-brand/10 [mask-image:radial-gradient(black,transparent)]"
+      />
+      <h2 className="relative text-title font-semibold text-ink">No clips came back.</h2>
+      <p className="relative text-body text-graphite leading-relaxed">
         The model found nothing self-contained enough to stand alone — which is a real
         answer for some source material, not necessarily a failure.
       </p>
-      <p className="text-body text-graphite leading-relaxed">
+      <p className="relative text-body text-graphite leading-relaxed">
         If you expected clips, try a larger provider model, or widen the length range so
         shorter moments qualify.
       </p>

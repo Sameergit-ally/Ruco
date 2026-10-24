@@ -11,6 +11,11 @@ being validated against a fixed golden video set — see
 
 ### Added
 
+- **Ruco Aurora UI** — violet-black theme, Velora navbar, flickering grid,
+  wordmark, pipeline beams, globe, terminal stage log, loaders, and clip
+  showcase from exported files. Logic layer (`api.ts`, SSE, player, trim,
+  captions) is unchanged.
+
 - **Pipeline** — ingest (YouTube via yt-dlp, or file upload), audio preparation,
   transcription with word-level timings, LLM highlight detection, speaker-tracked
   reframing, ASS caption generation, and export at 9:16 / 1:1 / 16:9.

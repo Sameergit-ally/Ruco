@@ -1,8 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { api, type ProviderStatus, type Settings as SettingsData, type SystemStatus } from '../api'
 import { ErrorNote } from '../components/ErrorNote'
-import { FallingCat } from '../components/FallingCat'
+import { BlurFade } from '../components/velora/blur-fade'
+import { SpinnerLoader } from '../components/velora/loaders'
+import { Terminal } from '../components/velora/terminal'
+import { buildSystemLog } from '../lib/systemLog'
 
 const SECRET_LABELS: Record<string, string> = {
   anthropic: 'Anthropic API key',
@@ -37,13 +40,24 @@ export function Settings() {
     }
   }
 
-  if (!settings) return <FallingCat className="min-h-[50vh]" />
+  const systemLines = useMemo(
+    () => (system ? buildSystemLog(system) : []),
+    [system],
+  )
+
+  if (!settings) {
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <SpinnerLoader size="lg" className="text-brand" label="Loading settings" />
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-4xl pt-2 sm:pt-4">
       {/* Masthead */}
       <div className="flex items-baseline justify-between border-b border-hairline pb-4">
-        <h1 className="font-dot text-title font-black text-ink">
+        <h1 className="font-display text-title font-bold tracking-tight text-foreground">
           Settings
         </h1>
         {saved && (
@@ -69,6 +83,7 @@ export function Settings() {
       )}
 
       {/* AI Provider Section */}
+      <BlurFade>
       <Section title="AI provider" note="Which model picks the clips.">
         <div className="grid gap-tight sm:grid-cols-2">
           {providers.map((provider) => {
@@ -134,8 +149,10 @@ export function Settings() {
           />
         </div>
       </Section>
+      </BlurFade>
 
       {/* Keys Section */}
+      <BlurFade delay={0.08}>
       <Section title="Keys" note="Stored in your OS keyring. Never sent anywhere but the provider.">
         <div className="space-y-3">
           {Object.entries(SECRET_LABELS).map(([key, label]) => (
@@ -150,8 +167,10 @@ export function Settings() {
           ))}
         </div>
       </Section>
+      </BlurFade>
 
       {/* Transcription Section */}
+      <BlurFade delay={0.16}>
       <Section title="Transcription">
         <div className="grid gap-item sm:grid-cols-2">
           <Select
@@ -197,8 +216,10 @@ export function Settings() {
           </label>
         </div>
       </Section>
+      </BlurFade>
 
       {/* Clips Section */}
+      <BlurFade delay={0.24}>
       <Section title="Clips">
         <div className="grid gap-item sm:grid-cols-3">
           <NumberField
@@ -218,8 +239,10 @@ export function Settings() {
           />
         </div>
       </Section>
+      </BlurFade>
 
       {/* Ingest Section */}
+      <BlurFade delay={0.32}>
       <Section title="Ingest">
         <div className="grid gap-item sm:grid-cols-2">
           <Select
@@ -234,8 +257,10 @@ export function Settings() {
           />
         </div>
       </Section>
+      </BlurFade>
 
       {/* Export Section */}
+      <BlurFade delay={0.4}>
       <Section title="Export">
         <div className="grid gap-item sm:grid-cols-2">
           <Select
@@ -292,36 +317,14 @@ export function Settings() {
           </label>
         </div>
       </Section>
+      </BlurFade>
 
-      {/* This Machine Section */}
-      {system && (
-        <Section title="This machine">
-          <dl className="grid gap-x-group gap-y-2.5 text-small sm:grid-cols-2">
-            <Row label="Platform" value={system.platform} />
-            <Row label="Python" value={system.python_version} />
-            <Row
-              label="ffmpeg"
-              value={system.ffmpeg_version ?? 'not found'}
-              badge={system.ffmpeg_version ? 'sure' : 'error'}
-              badgeText={system.ffmpeg_version ? 'Found' : 'Not found'}
-            />
-            <Row label="Acceleration" value={system.accel.toUpperCase()} />
-            <Row label="Device" value={system.gpu_name ?? '—'} />
-            <Row label="Whisper compute" value={system.compute_type} />
-            <Row
-              label="GPU encode"
-              value=""
-              badge={system.nvenc_works ? 'sure' : 'check'}
-              badgeText={system.nvenc_works ? 'Available' : 'Unavailable'}
-            />
-            <Row
-              label="Captions"
-              value=""
-              badge={system.has_libass ? 'sure' : 'error'}
-              badgeText={system.has_libass ? 'libass present' : 'libass missing'}
-            />
-          </dl>
-        </Section>
+      {systemLines.length > 0 && (
+        <BlurFade delay={0.48}>
+          <Section title="System check">
+            <Terminal title="doctor" lines={systemLines} />
+          </Section>
+        </BlurFade>
       )}
     </div>
   )
@@ -344,40 +347,6 @@ function Section({
       </div>
       <div className="mt-3">{children}</div>
     </section>
-  )
-}
-
-function Row({
-  label,
-  value,
-  badge,
-  badgeText,
-}: {
-  label: string
-  value: string
-  badge?: 'sure' | 'check' | 'error'
-  badgeText?: string
-}) {
-  return (
-    <div className="flex items-baseline justify-between gap-4 border-b border-hairline pb-2">
-      <dt className="text-graphite">{label}</dt>
-      <dd className="font-mono text-small tabular text-ink flex items-center gap-2">
-        {value && <span>{value}</span>}
-        {badge && (
-          <span
-            className={
-              badge === 'sure'
-                ? 'badge badge-sure'
-                : badge === 'check'
-                  ? 'badge badge-check'
-                  : 'badge badge-error'
-            }
-          >
-            {badgeText}
-          </span>
-        )}
-      </dd>
-    </div>
   )
 }
 

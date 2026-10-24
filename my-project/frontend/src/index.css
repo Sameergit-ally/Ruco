@@ -3,17 +3,17 @@
 @custom-variant dark (&:is(.dark *));
 
 /* --------------------------------------------------------------------------
-   Ruco: "Resolve" design system, ported from Ruvo.
-
-   Noise resolves into rows: white paper, true black ink, dot-matrix
-   imagery, and one burgundy signal. The signal (`highlighter`) means "found,
-   proven or chosen". It is always a background behind WHITE text (black on
-   burgundy is only 1.7:1), never a text colour or a decoration.
-   Palette: CAESAR (black #000000, burgundy #6D001A, white #FFFFFF).
-
-   Fonts are bundled (OFL) and loaded from ./fonts: Ruco is local-first and
-   fetches nothing at runtime.
+   Ruco Editorial: warm cream & charcoal with Playfair Display serif headings.
+   Body text uses Geist. Playfair Display is bundled under ./fonts.
    -------------------------------------------------------------------------- */
+
+@font-face {
+  font-family: 'Playfair Display';
+  src: url('./fonts/PlayfairDisplay-Variable.woff2') format('woff2-variations');
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
 
 @font-face {
   font-family: 'Doto';
@@ -41,23 +41,23 @@
 
 /* Always emit the whole palette, because :root below references it. */
 @theme static {
-  --font-display: 'Instrument Serif', Georgia, serif;
-  --font-sans: 'Archivo', ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Playfair Display', 'Georgia', 'Times New Roman', serif;
+  --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
 
-  /* Violet-black neutrals (hue 285). */
-  --color-ink-900: oklch(0.135 0.018 285);
-  --color-ink-850: oklch(0.165 0.020 285);
-  --color-ink-800: oklch(0.200 0.022 285);
-  --color-ink-700: oklch(0.260 0.024 285);
-  --color-ink-600: oklch(0.340 0.024 285);
-  --color-ink-500: oklch(0.600 0.020 285);
-  --color-ink-400: oklch(0.660 0.018 285);
-  --color-ink-300: oklch(0.720 0.016 285);
-  --color-ink-200: oklch(0.840 0.012 285);
-  --color-ink-100: oklch(0.945 0.008 285);
+  /* Warm cream neutrals (hue 40 — warm paper). */
+  --color-ink-900: oklch(0.985 0.008 80);   /* lightest — page background */
+  --color-ink-850: oklch(0.970 0.010 75);   /* card/sheet background */
+  --color-ink-800: oklch(0.945 0.012 70);   /* elevated sheet / muted bg */
+  --color-ink-700: oklch(0.885 0.014 65);   /* hairlines & borders */
+  --color-ink-600: oklch(0.780 0.012 60);   /* subtle dividers */
+  --color-ink-500: oklch(0.500 0.010 50);   /* pencil / placeholder */
+  --color-ink-400: oklch(0.400 0.008 45);   /* graphite */
+  --color-ink-300: oklch(0.340 0.006 40);   /* secondary text */
+  --color-ink-200: oklch(0.220 0.006 35);   /* primary text */
+  --color-ink-100: oklch(0.140 0.010 30);   /* headings & emphasis */
 
-  --color-signal-good: oklch(0.760 0.150 160);
-  --color-signal-bad: oklch(0.660 0.200 25);
+  --color-signal-good: oklch(0.600 0.160 155);
+  --color-signal-bad: oklch(0.560 0.190 25);
 
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
@@ -73,14 +73,14 @@
   --color-hairline-strong: var(--color-ink-700);
   --color-void: var(--color-ink-900);
   --color-highlighter: var(--brand);
-  --color-highlighter-wash: color-mix(in oklab, var(--brand) 15%, black);
+  --color-highlighter-wash: color-mix(in oklab, var(--brand) 12%, var(--color-ink-850));
   --color-highlighter-bright: var(--brand-from);
   --color-stamp: var(--color-signal-good);
-  --color-stamp-wash: color-mix(in oklab, var(--color-signal-good) 15%, black);
-  --color-amber: oklch(0.80 0.16 65);
-  --color-amber-wash: color-mix(in oklab, var(--brand-to) 15%, black);
+  --color-stamp-wash: color-mix(in oklab, var(--color-signal-good) 12%, var(--color-ink-850));
+  --color-amber: oklch(0.65 0.14 55);
+  --color-amber-wash: color-mix(in oklab, var(--color-amber) 12%, var(--color-ink-850));
   --color-brick: var(--color-signal-bad);
-  --color-brick-wash: color-mix(in oklab, var(--color-signal-bad) 15%, black);
+  --color-brick-wash: color-mix(in oklab, var(--color-signal-bad) 12%, var(--color-ink-850));
 
   --font-dot: var(--font-sans);
   --font-serif: var(--font-display);
@@ -115,22 +115,20 @@
   --radius-panel: 16px;
   --radius-sheet: 20px;
 
-  /* One soft elevation, only for what floats (see `frost`). Static content has none. */
-  --shadow-raised: 0 0 0 1px rgb(255 255 255 / 0.08), 0 20px 48px -12px rgb(0 0 0 / 0.85);
+  /* Soft elevation for light mode — warm subtle shadows. */
+  --shadow-raised: 0 0 0 1px rgb(0 0 0 / 0.06), 0 20px 48px -12px rgb(0 0 0 / 0.12);
 
   --ease-standard: cubic-bezier(0.2, 0, 0, 1);
 
   --animate-row-in: row-in 320ms var(--ease-standard) both;
-  --animate-cat-fall: cat-fall 1.6s ease-in-out infinite;
-  --animate-streak: streak 1.4s linear infinite;
 }
 
 /* Motion: three durations, one easing (--ease-standard). */
 :root {
-  /* Brand gradient: violet -> magenta -> amber */
-  --brand-from: oklch(0.62 0.25 292);
-  --brand-via: oklch(0.70 0.24 345);
-  --brand-to: oklch(0.80 0.16 65);
+  /* Brand: warm editorial charcoal → terracotta → ink */
+  --brand-from: oklch(0.200 0.012 30);
+  --brand-via: oklch(0.160 0.010 25);
+  --brand-to: oklch(0.500 0.080 40);
   --brand: var(--brand-via);
 
   --background: var(--color-ink-900);
@@ -160,7 +158,7 @@
 @layer base {
   *, ::before, ::after { border-color: var(--border); }
   html {
-    color-scheme: dark;
+    color-scheme: light;
   }
 
   body {
@@ -222,82 +220,38 @@
   }
 }
 
-/* A floating panel: dark frosted sheet over a blur with a subtle inner border and soft shadow. */
+/* A floating panel: warm frosted cream over a blur with a subtle inner border and soft shadow. */
 @utility frost {
-  background: linear-gradient(135deg, rgba(20, 16, 18, 0.75) 0%, rgba(10, 8, 9, 0.88) 100%);
+  background: linear-gradient(135deg, rgba(250, 246, 240, 0.85) 0%, rgba(255, 252, 248, 0.92) 100%);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.12),
-    0 12px 36px -8px rgba(0, 0, 0, 0.8),
-    0 0 40px -10px rgba(109, 0, 26, 0.15);
+    inset 0 1px 0 rgba(255, 255, 255, 0.7),
+    0 12px 36px -8px rgba(0, 0, 0, 0.1),
+    0 0 40px -10px rgba(180, 160, 140, 0.08);
 }
 
-/* Card highlight surface with subtle burgundy ambient glow */
-@utility glow-card {
-  position: relative;
-  background: linear-gradient(145deg, rgba(22, 17, 19, 0.85) 0%, rgba(12, 10, 11, 0.95) 100%);
-  -webkit-backdrop-filter: blur(20px);
-  backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow:
-    inset 0 1px 0 rgba(255, 255, 255, 0.15),
-    0 14px 40px -10px rgba(0, 0, 0, 0.85);
-  transition: all 0.25s cubic-bezier(0.2, 0, 0, 1);
-  &:hover {
-    border-color: rgba(229, 71, 106, 0.35);
-    box-shadow:
-      inset 0 1px 0 rgba(255, 255, 255, 0.2),
-      0 18px 48px -10px rgba(0, 0, 0, 0.9),
-      0 0 30px rgba(109, 0, 26, 0.28);
-  }
-}
-
-/* A retro bevel: elevated dark edge; pressing inverts it. */
+/* A retro bevel: elevated warm edge; pressing inverts it. */
 @utility bevel {
   background-color: var(--color-sheet);
   box-shadow:
-    inset 1px 1px 0 rgb(255 255 255 / 0.12),
-    inset -1px -1px 0 rgb(0 0 0 / 0.6),
+    inset 1px 1px 0 rgb(255 255 255 / 0.6),
+    inset -1px -1px 0 rgb(0 0 0 / 0.08),
     0 0 0 1px var(--color-hairline-strong);
   &:active:not(:disabled),
   &[aria-pressed='true'],
   &[data-state='open'] {
     background-color: var(--color-hairline);
     box-shadow:
-      inset 1px 1px 0 rgb(0 0 0 / 0.6),
-      inset -1px -1px 0 rgb(255 255 255 / 0.12),
+      inset 1px 1px 0 rgb(0 0 0 / 0.08),
+      inset -1px -1px 0 rgb(255 255 255 / 0.6),
       0 0 0 1px var(--color-hairline-strong);
   }
 }
 
-/* Loading, as dither: square dots on a 4px grid over a faint fill, and a band
-   where the offset grid joins in, stepping across. Density changes, never a gradient. */
-@utility dither {
-  --dots: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='4' height='4'%3E%3Crect width='2' height='2' fill='%23ffffff' fill-opacity='.12'/%3E%3C/svg%3E");
-  position: relative;
-  overflow: hidden;
-  background: var(--dots) color-mix(in srgb, var(--color-sheet) 90%, var(--color-canvas));
-  &::after {
-    content: '';
-    position: absolute;
-    inset: 0;
-    background: var(--dots) 2px 2px;
-    mask-image: linear-gradient(90deg, transparent 42%, #000 42% 58%, transparent 58%);
-    mask-size: 300% 100%;
-    animation: dither 1.6s steps(20) infinite;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    &::after {
-      animation: none;
-      mask-image: none;
-    }
-  }
-}
-
 @layer components {
-  /* Found words behind the signal: white text on a burgundy stamp. */
+  /* Found words behind the signal: white text on a charcoal stamp. */
   .mark {
     background: var(--color-highlighter);
     border-radius: 2px;
@@ -318,7 +272,7 @@
     @apply font-mono text-micro text-graphite;
   }
 
-  /* Buttons are CAESAR styled: Primary is rich burgundy with crisp white text. */
+  /* Buttons are editorial styled: Primary is rich charcoal with crisp white text. */
   .btn {
     @apply inline-flex h-10 shrink-0 items-center justify-center gap-2 rounded-control px-4 font-mono text-small font-medium whitespace-nowrap transition-all duration-(--duration-fast) select-none disabled:cursor-not-allowed;
   }
@@ -329,26 +283,34 @@
     @apply h-11 px-6 text-[0.95rem];
   }
   .btn-primary {
-    @apply bg-[var(--brand)] text-[var(--primary-foreground)] font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_4px_16px_color-mix(in_oklab,var(--brand)_40%,black)] hover:brightness-110 active:scale-[0.98] active:shadow-none disabled:bg-none disabled:bg-hairline-strong disabled:text-pencil disabled:shadow-none disabled:scale-100;
+    background: var(--brand);
+    color: var(--primary-foreground);
+    @apply font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.15),0_4px_16px_color-mix(in_oklab,var(--brand)_40%,transparent)] active:scale-[0.98] active:shadow-none disabled:bg-none disabled:bg-hairline-strong disabled:text-pencil disabled:shadow-none disabled:scale-100;
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: color-mix(in oklab, var(--brand) 82%, transparent);
+  }
+  .numeric {
+    font-variant-numeric: tabular-nums;
   }
   .btn-secondary {
     @apply bevel text-ink hover:bg-hairline hover:border-graphite disabled:bg-sheet disabled:text-pencil;
   }
   .btn-quiet {
-    @apply text-graphite hover:bg-white/8 hover:text-ink active:bg-white/12 disabled:bg-transparent disabled:text-pencil;
+    @apply text-graphite hover:bg-black/6 hover:text-ink active:bg-black/10 disabled:bg-transparent disabled:text-pencil;
   }
   .btn-danger {
     @apply bevel text-brick hover:bg-brick-wash disabled:bg-sheet disabled:text-pencil;
   }
 
-  /* A hairline field, slightly sunk; focus draws it with a burgundy halo. */
+  /* A hairline field, slightly sunk; focus draws it with a charcoal halo. */
   .field {
-    @apply h-10 w-full rounded-control border border-hairline-strong bg-sheet px-3 text-small text-ink shadow-[inset_0_1px_2px_rgb(0_0_0/0.4)] transition-[border-color,box-shadow] duration-(--duration-fast) hover:border-graphite focus-visible:border-white focus-visible:ring-4 focus-visible:ring-highlighter/50 focus-visible:outline-none aria-invalid:border-brick disabled:border-hairline disabled:bg-canvas disabled:text-pencil;
+    @apply h-10 w-full rounded-control border border-hairline-strong bg-sheet px-3 text-small text-ink shadow-[inset_0_1px_2px_rgb(0_0_0/0.04)] transition-[border-color,box-shadow] duration-(--duration-fast) hover:border-graphite focus-visible:border-foreground focus-visible:ring-4 focus-visible:ring-highlighter/20 focus-visible:outline-none aria-invalid:border-brick disabled:border-hairline disabled:bg-canvas disabled:text-pencil;
   }
 
   /* Mono pills led by a 6px square dot (one cell of the dot matrix). */
   .badge {
-    @apply inline-flex items-center gap-1.5 rounded-full bg-white/8 px-2.5 py-0.5 font-mono text-micro whitespace-nowrap text-graphite before:size-1.5 before:shrink-0 before:bg-current;
+    @apply inline-flex items-center gap-1.5 rounded-full bg-black/6 px-2.5 py-0.5 font-mono text-micro whitespace-nowrap text-graphite before:size-1.5 before:shrink-0 before:bg-current;
   }
   .badge-sure {
     @apply bg-stamp-wash text-stamp;
@@ -365,19 +327,19 @@
 
   /* A choice as a flat tile; the chosen tile fills with signal and a square fills too. */
   .tile {
-    @apply relative flex h-full cursor-pointer flex-col items-start gap-1 rounded-control border border-hairline-strong bg-sheet py-3 pr-8 pl-item text-left transition-colors duration-(--duration-fast) after:absolute after:top-4 after:right-3.5 after:size-2 after:border after:border-graphite hover:border-graphite has-checked:border-white has-checked:bg-highlighter has-checked:after:border-white has-checked:after:bg-white has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-white has-disabled:cursor-not-allowed has-disabled:opacity-50;
+    @apply relative flex h-full cursor-pointer flex-col items-start gap-1 rounded-control border border-hairline-strong bg-sheet py-3 pr-8 pl-item text-left transition-colors duration-(--duration-fast) after:absolute after:top-4 after:right-3.5 after:size-2 after:border after:border-graphite hover:border-graphite has-checked:border-foreground has-checked:bg-highlighter has-checked:after:border-white has-checked:after:bg-white has-focus-visible:outline-2 has-focus-visible:outline-offset-2 has-focus-visible:outline-foreground has-disabled:cursor-not-allowed has-disabled:opacity-50;
   }
-  /* Text inside the chosen tile turns white; the burgundy signal sits behind it. */
+  /* Text inside the chosen tile turns white; the charcoal signal sits behind it. */
   .tile:has(:checked) * {
     color: #ffffff;
   }
 
   /* A pill toggle: a sunk track that fills with the signal, a raised white thumb. */
   .switch {
-    @apply inline-flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full bg-hairline-strong p-[3px] shadow-[inset_0_1px_2px_rgb(0_0_0/0.4)] transition-colors duration-(--duration-base) aria-checked:bg-highlighter disabled:cursor-not-allowed disabled:opacity-50;
+    @apply inline-flex h-6 w-10 shrink-0 cursor-pointer items-center rounded-full bg-hairline-strong p-[3px] shadow-[inset_0_1px_2px_rgb(0_0_0/0.08)] transition-colors duration-(--duration-base) aria-checked:bg-highlighter disabled:cursor-not-allowed disabled:opacity-50;
   }
   .switch > span {
-    @apply block size-4.5 rounded-full bg-white shadow-[0_1px_2px_rgb(0_0_0/0.4)] transition-[translate,background-color] duration-(--duration-base) ease-(--ease-standard);
+    @apply block size-4.5 rounded-full bg-white shadow-[0_1px_2px_rgb(0_0_0/0.1)] transition-[translate,background-color] duration-(--duration-base) ease-(--ease-standard);
   }
   .switch[aria-checked='true'] > span {
     @apply translate-x-4;
@@ -411,41 +373,6 @@
   to {
     opacity: 1;
     transform: none;
-  }
-}
-
-/* The falling cat: it sways and bobs in place while the air streaks rise past it. */
-@keyframes cat-fall {
-  0%,
-  100% {
-    transform: translateY(0) rotate(-7deg);
-  }
-  50% {
-    transform: translateY(3px) rotate(7deg);
-  }
-}
-
-@keyframes streak {
-  from {
-    transform: translateY(44px);
-    opacity: 0;
-  }
-  25%,
-  75% {
-    opacity: 1;
-  }
-  to {
-    transform: translateY(-56px);
-    opacity: 0;
-  }
-}
-
-@keyframes dither {
-  from {
-    mask-position: 100% 0;
-  }
-  to {
-    mask-position: 0 0;
   }
 }
 
@@ -492,11 +419,4 @@
     opacity: var(--flicker-min, 0.08);
     }
   }
-}
-
-@theme static {
-  --color-sodium-400: oklch(0.78 0.20 345);
-  --color-sodium-500: var(--brand);
-  --color-sodium-600: oklch(0.60 0.22 345);
-  --color-sodium-700: oklch(0.45 0.16 345);
 }

@@ -2,7 +2,7 @@
 
 Source of truth for what this project is. If something is not written here, it is **not decided**. Do not assume it. Ask, or add it to "Open questions".
 
-Status: **Planning / early setup.** No project code has been written yet.
+Status: **Working local app.** Backend pipeline and Vite/React UI exist under `my-project/`. Frontend redesign to Ruco Aurora (Velora elements) is in progress on `frontend-redesign`.
 
 ---
 
@@ -125,7 +125,7 @@ viral-clipper/
 2. What target clip length (for example 30-60 seconds)?
 3. Which languages must be supported (English only, or Hindi and Hinglish too)?
 4. Will this stay a personal tool, or will it be published or sold? (This affects licensing.)
-5. Interface: command line, local web UI, or desktop app?
+5. Interface: local web UI on Vite + React 18, served by FastAPI. CLI remains. (Closed 2026-10-25.)
 6. What are the user's machine specs (OS, RAM, GPU)?
 
 ## 13. Glossary

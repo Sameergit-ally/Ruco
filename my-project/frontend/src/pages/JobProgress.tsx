@@ -1,14 +1,15 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 
 import { api, formatDuration } from '../api'
-import { DotField } from '../components/DotField'
 import { ErrorNote } from '../components/ErrorNote'
-import { FallingCat } from '../components/FallingCat'
-import { ProgressTrack, type TrackStage } from '../components/ProgressTrack'
+import { PipelineDiagram, type StepState } from '../components/PipelineDiagram'
 import { JOB_STATUS_LABEL, StatusDot } from '../components/StatusDot'
-import { useJobStream } from '../useJobStream'
+import { DotsLoader, SpinnerLoader } from '../components/velora/loaders'
+import { Terminal } from '../components/velora/terminal'
+import { buildStageLog } from '../lib/stageLog'
 import { STAGES } from '../stages'
+import { useJobStream } from '../useJobStream'
 
 export function JobProgress() {
   const { jobId } = useParams()
@@ -19,17 +20,25 @@ export function JobProgress() {
 
   useEffect(() => {
     if (job?.status === 'done') {
-      // A short hold so the completed state is legible rather than a flash.
       const timer = setTimeout(() => navigate(`/jobs/${job.id}/clips`), 900)
       return () => clearTimeout(timer)
     }
   }, [job?.status, job?.id, navigate])
 
+  const activeIndex = job ? STAGES.findIndex((s) => s.key === job.current_stage) : -1
+  const logLines = useMemo(
+    () => (job ? buildStageLog(STAGES, job) : []),
+    [job?.status, job?.current_stage, job?.error],
+  )
+
   if (!job) {
-    return <FallingCat className="min-h-[50vh]" />
+    return (
+      <div className="flex min-h-[50vh] items-center justify-center">
+        <SpinnerLoader size="lg" className="text-brand" label="Loading job" />
+      </div>
+    )
   }
 
-  const activeIndex = STAGES.findIndex((s) => s.key === job.current_stage)
   const percent = Math.round((progress?.overall ?? job.progress) * 100)
 
   const cancel = async () => {
@@ -54,29 +63,13 @@ export function JobProgress() {
     }
   }
 
-  // Build TrackStage array for ProgressTrack
-  const stages: TrackStage[] = STAGES.map((stage, index) => {
+  const states: StepState[] = STAGES.map((_, index) => {
     const failedHere =
       (job.status === 'failed' || job.status === 'cancelled') && index === activeIndex
-
-    const state =
-      job.status === 'done' || (activeIndex >= 0 && index < activeIndex)
-        ? 'done'
-        : failedHere
-          ? 'stopped'
-          : index === activeIndex && job.status === 'running'
-            ? 'active'
-            : 'pending'
-
-    const fraction =
-      state === 'done' ? 1 : state === 'active' ? (progress?.stageProgress ?? 0) : 0
-
-    return {
-      key: stage.key,
-      label: stage.label,
-      state,
-      fraction,
-    }
+    if (job.status === 'done' || (activeIndex >= 0 && index < activeIndex)) return 'done'
+    if (failedHere) return 'stopped'
+    if (index === activeIndex && job.status === 'running') return 'active'
+    return 'pending'
   })
 
   const currentStageInfo = STAGES[activeIndex]
@@ -84,93 +77,102 @@ export function JobProgress() {
 
   return (
     <div className="pt-2 sm:pt-4">
-      {/* Header and metadata */}
-      <div className="mb-6 space-y-2">
-        <Link
-          to="/"
-          className="inline-flex items-center gap-1 font-mono text-small text-graphite hover:text-ink"
-        >
-          ← All jobs
-        </Link>
-        <h1 className="font-dot text-title font-black text-ink text-balance line-clamp-2">
-          {job.source?.title || 'Untitled'}
-        </h1>
-        <div className="flex flex-wrap items-center gap-x-group gap-y-1 font-mono text-small text-graphite tabular">
-          <span className="flex items-center gap-1.5 font-medium text-ink">
-            <StatusDot status={job.status} />
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
+        <div className="min-w-0 space-y-2">
+          <p className="text-micro uppercase tracking-wider text-muted-foreground">
             {JOB_STATUS_LABEL[job.status]}
-          </span>
-          {job.source && (
-            <>
-              <span>{formatDuration(job.source.duration_s)}</span>
-              {job.source.width && <span>{job.source.width}×{job.source.height}</span>}
-              <span>{job.provider}</span>
-            </>
+          </p>
+          <h1 className="font-display text-title font-bold tracking-tight text-foreground text-balance line-clamp-2">
+            {job.source?.title || 'Untitled'}
+          </h1>
+          <div className="flex flex-wrap items-center gap-x-group gap-y-1 text-small text-muted-foreground">
+            <span className="flex items-center gap-1.5 font-medium text-foreground">
+              <StatusDot status={job.status} />
+              {JOB_STATUS_LABEL[job.status]}
+            </span>
+            {job.source && (
+              <>
+                <span className="numeric">{formatDuration(job.source.duration_s)}</span>
+                {job.source.width && (
+                  <span className="numeric">
+                    {job.source.width}×{job.source.height}
+                  </span>
+                )}
+                <span>{job.provider}</span>
+              </>
+            )}
+          </div>
+        </div>
+        <div className="flex items-center gap-item">
+          <span className="numeric text-title font-medium text-foreground">{percent}%</span>
+          {(job.status === 'running' || job.status === 'queued') && (
+            <button onClick={cancel} disabled={cancelling} className="btn btn-danger">
+              {cancelling ? 'Cancelling…' : 'Cancel'}
+            </button>
+          )}
+          {(job.status === 'failed' || job.status === 'cancelled') && (
+            <button onClick={retry} className="btn btn-secondary">
+              Retry
+            </button>
+          )}
+          {job.status === 'done' && (
+            <button onClick={() => navigate(`/jobs/${job.id}/clips`)} className="btn btn-primary">
+              Review clips →
+            </button>
           )}
         </div>
       </div>
 
-      {/* Collecting Panel (high-contrast luxury panel with resolving dot field) */}
-      <section className="isolate overflow-hidden rounded-panel border border-white/10 bg-black/60 shadow-[0_18px_48px_-10px_rgba(0,0,0,0.9),0_0_35px_rgba(109,0,26,0.25)] backdrop-blur-xl text-white">
-        <div className="relative">
-          <DotField
-            tone="void"
-            interactive
-            resolve={percent / 100}
-            className="absolute inset-0 -z-10 opacity-70 [mask-image:linear-gradient(black_20%,transparent_50%)] sm:[mask-image:linear-gradient(to_right,transparent_20%,black_75%)]"
-          />
+      <Link to="/" className="mb-6 inline-flex text-small text-muted-foreground hover:text-foreground">
+        ← All jobs
+      </Link>
 
-          <div className="flex min-h-64 flex-col justify-end gap-group p-group pt-28 sm:flex-row sm:items-end sm:justify-between sm:p-stack">
-            <div>
-              <div className="flex items-baseline gap-3">
-                <span className="font-dot text-count font-extrabold tabular text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]">
-                  {percent}
-                </span>
-                <span className="font-sans text-heading font-medium text-graphite">% done</span>
+      <PipelineDiagram steps={STAGES} states={states} />
+
+      <Terminal
+        className="mt-6"
+        title="pipeline"
+        lines={logLines.length ? logLines : ['Queued']}
+      />
+
+      <ul className="mt-8 space-y-3">
+        {STAGES.map((stage, index) => {
+          const state = states[index]
+          const fraction =
+            state === 'done' ? 1 : state === 'active' ? (progress?.stageProgress ?? 0) : 0
+          return (
+            <li key={stage.key} className="flex items-center gap-3">
+              <span className="numeric w-8 text-micro text-muted-foreground">
+                {String(index + 1).padStart(2, '0')}
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-small font-medium text-foreground">{stage.label}</span>
+                  {state === 'active' && (
+                    <DotsLoader size="sm" className="text-brand" label={stage.label} />
+                  )}
+                </div>
+                <div className="mt-1 h-px bg-border">
+                  <div
+                    className="h-px bg-brand"
+                    style={{ width: `${Math.round(fraction * 100)}%` }}
+                  />
+                </div>
+                {state === 'active' && (
+                  <p className="mt-1 text-micro text-muted-foreground" aria-live="polite">
+                    {stageMessage}
+                  </p>
+                )}
               </div>
-              <p className="mt-2 font-mono text-small font-medium text-white/90" aria-live="polite">
-                {stageMessage}
-              </p>
-            </div>
+            </li>
+          )
+        })}
+      </ul>
 
-            <div className="flex items-center gap-item">
-              {(job.status === 'running' || job.status === 'queued') && (
-                <button
-                  onClick={cancel}
-                  disabled={cancelling}
-                  className="btn btn-danger"
-                >
-                  {cancelling ? 'Cancelling…' : 'Cancel'}
-                </button>
-              )}
-              {(job.status === 'failed' || job.status === 'cancelled') && (
-                <button onClick={retry} className="btn btn-secondary">
-                  Retry
-                </button>
-              )}
-              {job.status === 'done' && (
-                <button
-                  onClick={() => navigate(`/jobs/${job.id}/clips`)}
-                  className="btn btn-primary"
-                >
-                  Review clips →
-                </button>
-              )}
-            </div>
-          </div>
-
-          {/* ProgressTrack footer */}
-          <div className="border-t border-white/10 bg-white/[0.02] px-group py-item sm:px-stack">
-            <ProgressTrack stages={stages} />
-          </div>
-        </div>
-      </section>
-
-      {/* Errors flat on paper beneath the panel */}
       {job.error && (
         <div className="mt-6 max-w-2xl space-y-2">
           <ErrorNote error={new Error(job.error)} />
-          <p className="font-sans text-small text-graphite">
+          <p className="text-small text-muted-foreground">
             Retrying resumes from the stage that failed — finished stages are not redone.
           </p>
         </div>

@@ -2,9 +2,11 @@ import { useEffect, useState } from 'react'
 import { Outlet, useLocation } from 'react-router-dom'
 
 import { api, type SystemStatus } from './api'
-import { AmbientField, isWideFrame } from './components/AmbientField'
 import { MenuItem, NavbarMenu } from './components/velora/navbar-menu'
+import { Particles } from './components/velora/particles'
 import { STAGES } from './stages'
+
+const isWideFrame = (pathname: string) => pathname.endsWith('/clips')
 
 export function App() {
   const [system, setSystem] = useState<SystemStatus | null>(null)
@@ -17,7 +19,9 @@ export function App() {
 
   return (
     <>
-      <AmbientField />
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden text-brand/30">
+        <Particles quantity={70} />
+      </div>
       <a
         href="#main"
         className="sr-only focus:not-sr-only focus:fixed focus:top-2 focus:left-2 focus:z-50 focus:rounded-control focus:bg-ink focus:px-3 focus:py-2 focus:text-sheet"
@@ -39,7 +43,11 @@ export function App() {
           </MenuItem>
           <MenuItem label="Settings" href="/settings" />
         </NavbarMenu>
-        {system && <div className="absolute right-4 hidden md:block"><SystemBadge system={system} /></div>}
+        {system && (
+          <div className="absolute right-4 hidden md:block">
+            <SystemBadge system={system} />
+          </div>
+        )}
       </header>
       <main id="main" className={`mx-auto ${frame} px-4 pb-stack pt-24 sm:px-6 sm:pb-section sm:pt-28`}>
         <Outlet />
@@ -53,7 +61,7 @@ function SystemBadge({ system }: { system: SystemStatus }) {
   const accel = system.accel.toUpperCase()
   return (
     <div className="hidden items-center gap-item md:flex">
-      <span className="tabular text-micro text-pencil">
+      <span className="tabular text-micro text-muted-foreground">
         {accel}
         {system.gpu_name && accel === 'CUDA' && ` · ${system.gpu_name.replace('NVIDIA GeForce ', '')}`}
       </span>
