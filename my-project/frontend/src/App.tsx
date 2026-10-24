@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 
 import { api, type SystemStatus } from './api'
 import { AmbientField, isWideFrame } from './components/AmbientField'
-import { Logo } from './components/Logo'
+import { MenuItem, NavbarMenu } from './components/velora/navbar-menu'
+import { STAGES } from './stages'
 
 export function App() {
   const [system, setSystem] = useState<SystemStatus | null>(null)
   const wide = isWideFrame(useLocation().pathname)
-  // Literal strings so Tailwind finds both.
   const frame = wide ? 'max-w-[1600px]' : 'max-w-[1200px]'
 
   useEffect(() => {
@@ -24,29 +24,24 @@ export function App() {
       >
         Skip to content
       </a>
-      <header className="sticky top-0 z-40 border-b border-white/8 bg-black/70 backdrop-blur-xl transition-all">
-        <nav aria-label="Main" className={`mx-auto flex h-15 ${frame} items-center gap-group px-4 sm:px-6`}>
-          <Logo />
-          <div className="ml-auto flex items-center gap-group font-mono text-small">
-            {system && <SystemBadge system={system} />}
-            <NavLink
-              to="/settings"
-              className={({ isActive }) =>
-                isActive
-                  ? 'text-white font-medium bg-white/8 px-2.5 py-1 rounded-control'
-                  : 'text-graphite hover:text-white px-2.5 py-1 transition-colors'
-              }
-            >
-              Settings
-            </NavLink>
-            <NavLink to="/" end className="btn btn-primary btn-sm">
-              + New Clip
-            </NavLink>
-          </div>
-        </nav>
+      <header className="fixed left-0 right-0 top-4 z-50 flex items-center justify-center px-4">
+        <NavbarMenu className="gap-0">
+          <MenuItem label="New" href="/" />
+          <MenuItem label="Pipeline">
+            <ul className="min-w-[220px] space-y-1 text-sm">
+              {STAGES.map((s) => (
+                <li key={s.key} className="rounded-lg px-2 py-1">
+                  <div className="font-medium">{s.label}</div>
+                  <div className="text-xs text-muted-foreground">{s.note}</div>
+                </li>
+              ))}
+            </ul>
+          </MenuItem>
+          <MenuItem label="Settings" href="/settings" />
+        </NavbarMenu>
+        {system && <div className="absolute right-4 hidden md:block"><SystemBadge system={system} /></div>}
       </header>
-      {/* No background on main: the dot field sits behind it at z -10. */}
-      <main id="main" className={`mx-auto ${frame} px-4 py-stack sm:px-6 sm:py-section`}>
+      <main id="main" className={`mx-auto ${frame} px-4 pb-stack pt-24 sm:px-6 sm:pb-section sm:pt-28`}>
         <Outlet />
       </main>
     </>
