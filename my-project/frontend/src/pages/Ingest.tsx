@@ -95,7 +95,7 @@ export function Ingest() {
           </BlurFade>
           <h1 className="mt-4 font-display text-display font-bold text-foreground text-balance tracking-tight">
             Long video in.{' '}
-            <span className="italic">
+            <span className="italic text-terracotta">
               Shorts
             </span>{' '}
             out.
