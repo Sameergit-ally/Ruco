@@ -39,42 +39,53 @@
   font-display: swap;
 }
 
-/* `static` emits every token as a CSS variable. DotField reads three of them
-   (ink, canvas, highlighter) by name at runtime, so they must always exist. */
+/* Always emit the whole palette, because :root below references it. */
 @theme static {
-  /* True CAESAR palette: Black #000000, Burgundy #6D001A, White #FFFFFF */
-  --color-canvas: #000000; /* deep pure black canvas */
-  --color-sheet: #0e0d0e; /* dark luxury surface for cards/panels */
-  --color-sheet-elevated: #161415; /* elevated surface */
-  --color-ink: #ffffff; /* crisp white text */
-  --color-graphite: #c2bebf; /* high-contrast secondary text */
-  --color-pencil: #7e7779; /* placeholders, hints and inactive labels */
-  --color-hairline: #242022; /* subtle dark border */
-  --color-hairline-strong: #3b3537; /* control outlines */
-  --color-void: #000000; /* true black void panel */
+  --font-display: 'Instrument Serif', Georgia, serif;
+  --font-sans: 'Archivo', ui-sans-serif, system-ui, sans-serif;
 
-  /* The signal: burgundy #6D001A. The heart of Project CAESAR. */
-  --color-highlighter: #6d001a;
-  --color-highlighter-wash: #28020a; /* dark velvet burgundy wash for highlights and active rings */
-  /* Burgundy lifted for subtle glowing accents */
-  --color-highlighter-bright: #9e1432;
+  /* Violet-black neutrals (hue 285). */
+  --color-ink-900: oklch(0.135 0.018 285);
+  --color-ink-850: oklch(0.165 0.020 285);
+  --color-ink-800: oklch(0.200 0.022 285);
+  --color-ink-700: oklch(0.260 0.024 285);
+  --color-ink-600: oklch(0.340 0.024 285);
+  --color-ink-500: oklch(0.600 0.020 285);
+  --color-ink-400: oklch(0.660 0.018 285);
+  --color-ink-300: oklch(0.720 0.016 285);
+  --color-ink-200: oklch(0.840 0.012 285);
+  --color-ink-100: oklch(0.945 0.008 285);
 
-  /* Meaning: sure / check this / error. Always with a word or icon, never colour alone. */
-  --color-stamp: #2bb673;
-  --color-stamp-wash: #0a2618;
-  --color-amber: #e59934;
-  --color-amber-wash: #2b1d0a;
-  --color-brick: #e54747;
-  --color-brick-wash: #2e0d0d;
+  --color-signal-good: oklch(0.760 0.150 160);
+  --color-signal-bad: oklch(0.660 0.200 25);
 
-  /* Doto (dot-matrix, 800-900) for the few big moments, never under 32px on
-     desktop; Geist to read; Geist Mono for everything you press or scan. */
-  --font-dot: 'Doto', ui-monospace, monospace;
-  --font-sans: 'Geist', ui-sans-serif, system-ui, sans-serif;
-  --font-mono: 'Geist Mono', ui-monospace, monospace;
-  --font-serif: 'Playfair Display', 'Cormorant Garamond', Georgia, serif;
-  --font-luxury: 'Cormorant Garamond', Georgia, serif;
-  --font-script: 'Italianno', cursive, serif;
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+
+  /* Legacy aliases for compatibility */
+  --color-canvas: var(--color-ink-900);
+  --color-sheet: var(--color-ink-850);
+  --color-sheet-elevated: var(--color-ink-800);
+  --color-ink: var(--color-ink-100);
+  --color-graphite: var(--color-ink-300);
+  --color-pencil: var(--color-ink-500);
+  --color-hairline: var(--color-ink-700);
+  --color-hairline-strong: var(--color-ink-700);
+  --color-void: var(--color-ink-900);
+  --color-highlighter: var(--brand);
+  --color-highlighter-wash: color-mix(in oklab, var(--brand) 15%, black);
+  --color-highlighter-bright: var(--brand-from);
+  --color-stamp: var(--color-signal-good);
+  --color-stamp-wash: color-mix(in oklab, var(--color-signal-good) 15%, black);
+  --color-amber: oklch(0.80 0.16 65);
+  --color-amber-wash: color-mix(in oklab, var(--brand-to) 15%, black);
+  --color-brick: var(--color-signal-bad);
+  --color-brick-wash: color-mix(in oklab, var(--color-signal-bad) 15%, black);
+
+  --font-dot: var(--font-sans);
+  --font-serif: var(--font-display);
+  --font-luxury: var(--font-display);
+  --font-script: var(--font-display);
 
   /* Desktop sizes; phones step the display sizes down below. */
   --text-count: 6rem;
@@ -116,22 +127,46 @@
 
 /* Motion: three durations, one easing (--ease-standard). */
 :root {
+  /* Brand gradient: violet -> magenta -> amber */
+  --brand-from: oklch(0.62 0.25 292);
+  --brand-via: oklch(0.70 0.24 345);
+  --brand-to: oklch(0.80 0.16 65);
+  --brand: var(--brand-via);
+
+  --background: var(--color-ink-900);
+  --foreground: var(--color-ink-100);
+  --card: var(--color-ink-850);
+  --card-foreground: var(--color-ink-100);
+  --popover: var(--color-ink-850);
+  --popover-foreground: var(--color-ink-100);
+  --primary: var(--brand);
+  --primary-foreground: var(--color-ink-900);
+  --secondary: var(--color-ink-800);
+  --secondary-foreground: var(--color-ink-100);
+  --muted: var(--color-ink-800);
+  --muted-foreground: var(--color-ink-300);
+  --accent: var(--color-ink-800);
+  --accent-foreground: var(--color-ink-100);
+  --destructive: var(--color-signal-bad);
+  --border: var(--color-ink-700);
+  --input: var(--color-ink-700);
+  --ring: var(--brand);
+
   --duration-fast: 120ms;
   --duration-base: 200ms;
   --duration-slow: 320ms;
 }
 
 @layer base {
-  /* No background on html: body's then propagates to the canvas, so the fixed
-     -z-10 dot field paints above the paper instead of under the body. */
+  *, ::before, ::after { border-color: var(--border); }
   html {
     color-scheme: dark;
   }
 
   body {
     margin: 0;
-    background: var(--color-canvas);
-    color: var(--color-ink);
+    background: var(--background);
+    color: var(--foreground);
     font-family: var(--font-sans);
     font-size: var(--text-body);
     line-height: var(--text-body--line-height);
@@ -157,12 +192,12 @@
   }
 
   :focus-visible {
-    outline: 2px solid var(--color-ink);
+    outline: 2px solid var(--ring);
     outline-offset: 2px;
   }
 
   ::selection {
-    background: var(--color-highlighter);
+    background: var(--brand);
     color: #ffffff;
   }
 
@@ -294,7 +329,7 @@
     @apply h-11 px-6 text-[0.95rem];
   }
   .btn-primary {
-    @apply bg-gradient-to-r from-[#850020] to-[#6d001a] text-white font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.35),0_4px_16px_rgba(109,0,26,0.65)] hover:from-[#9c0629] hover:to-[#7d0220] hover:shadow-[inset_0_1px_0_rgba(255,255,255,0.45),0_6px_22px_rgba(109,0,26,0.85)] active:scale-[0.98] active:shadow-none disabled:bg-none disabled:bg-hairline-strong disabled:text-pencil disabled:shadow-none disabled:scale-100;
+    @apply bg-[var(--brand)] text-[var(--primary-foreground)] font-semibold shadow-[inset_0_1px_0_rgba(255,255,255,0.25),0_4px_16px_color-mix(in_oklab,var(--brand)_40%,black)] hover:brightness-110 active:scale-[0.98] active:shadow-none disabled:bg-none disabled:bg-hairline-strong disabled:text-pencil disabled:shadow-none disabled:scale-100;
   }
   .btn-secondary {
     @apply bevel text-ink hover:bg-hairline hover:border-graphite disabled:bg-sheet disabled:text-pencil;
@@ -425,6 +460,29 @@
 }
 
 @theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-brand: var(--brand);
+  --color-brand-from: var(--brand-from);
+  --color-brand-via: var(--brand-via);
+  --color-brand-to: var(--brand-to);
+
   --animate-flicker: flicker 3s steps(1, end) infinite;
   @keyframes flicker {
   0%, 100% {
@@ -434,4 +492,11 @@
     opacity: var(--flicker-min, 0.08);
     }
   }
+}
+
+@theme static {
+  --color-sodium-400: oklch(0.78 0.20 345);
+  --color-sodium-500: var(--brand);
+  --color-sodium-600: oklch(0.60 0.22 345);
+  --color-sodium-700: oklch(0.45 0.16 345);
 }
