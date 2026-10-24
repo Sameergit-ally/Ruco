@@ -1,5 +1,7 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:is(.dark *));
+
 /* --------------------------------------------------------------------------
    Ruco: "Resolve" design system, ported from Ruvo.
 
@@ -419,5 +421,17 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+  }
+}
+
+@theme inline {
+  --animate-flicker: flicker 3s steps(1, end) infinite;
+  @keyframes flicker {
+  0%, 100% {
+    opacity: var(--flicker-max, 0.45);
+    }
+  50% {
+    opacity: var(--flicker-min, 0.08);
+    }
   }
 }

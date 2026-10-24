@@ -119,25 +119,25 @@ export function JobProgress() {
         </div>
       </div>
 
-      {/* Collecting Panel (black void panel with resolving dot field) */}
-      <section className="isolate overflow-hidden rounded-panel bg-void text-sheet">
+      {/* Collecting Panel (high-contrast luxury panel with resolving dot field) */}
+      <section className="isolate overflow-hidden rounded-panel border border-white/10 bg-black/60 shadow-[0_18px_48px_-10px_rgba(0,0,0,0.9),0_0_35px_rgba(109,0,26,0.25)] backdrop-blur-xl text-white">
         <div className="relative">
           <DotField
             tone="void"
             interactive
             resolve={percent / 100}
-            className="absolute inset-0 -z-10 [mask-image:linear-gradient(black_20%,transparent_45%)] sm:[mask-image:linear-gradient(to_right,transparent_20%,black_65%)]"
+            className="absolute inset-0 -z-10 opacity-70 [mask-image:linear-gradient(black_20%,transparent_50%)] sm:[mask-image:linear-gradient(to_right,transparent_20%,black_75%)]"
           />
 
           <div className="flex min-h-64 flex-col justify-end gap-group p-group pt-28 sm:flex-row sm:items-end sm:justify-between sm:p-stack">
             <div>
-              <div className="flex items-baseline gap-2">
-                <span className="font-dot text-count font-extrabold tabular text-sheet">
+              <div className="flex items-baseline gap-3">
+                <span className="font-dot text-count font-extrabold tabular text-white drop-shadow-[0_0_12px_rgba(255,255,255,0.4)]">
                   {percent}
                 </span>
-                <span className="font-sans text-heading font-medium text-sheet/70">% done</span>
+                <span className="font-sans text-heading font-medium text-graphite">% done</span>
               </div>
-              <p className="mt-1 font-mono text-small text-sheet/70" aria-live="polite">
+              <p className="mt-2 font-mono text-small font-medium text-white/90" aria-live="polite">
                 {stageMessage}
               </p>
             </div>
@@ -160,16 +160,16 @@ export function JobProgress() {
               {job.status === 'done' && (
                 <button
                   onClick={() => navigate(`/jobs/${job.id}/clips`)}
-                  className="btn btn-secondary"
+                  className="btn btn-primary"
                 >
-                  Review clips
+                  Review clips →
                 </button>
               )}
             </div>
           </div>
 
           {/* ProgressTrack footer */}
-          <div className="border-t border-sheet/15 px-group py-item sm:px-stack">
+          <div className="border-t border-white/10 bg-white/[0.02] px-group py-item sm:px-stack">
             <ProgressTrack stages={stages} />
           </div>
         </div>

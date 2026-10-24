@@ -191,4 +191,115 @@ These are not decided yet. Do not assume an answer. Each needs a decision entry 
 - Skate: verify its license before reusing anything
 - Verify AutoClip's exact install commands from its README
 
+## D-009: Replace the visual layer, keep the logic layer
+
+- Date: 2026-10-25
+- Status: Accepted
+- Context: Want modern glowing animated UI with Velora elements while keeping working logic.
+- Options considered:
+  1. Delete everything and rewrite: maximum freedom, but re-creates solved bugs and violates rule 9.
+  2. Keep logic files, replace page markup and CSS: same new look, far less risk.
+- Decision: Option 2. Keep `api.ts`, `useJobStream.ts`, `ClipPlayer.tsx`, `TrimBar.tsx`, `CaptionEditor.tsx`, `ErrorNote.tsx`. Rewrite page markup, shell and CSS.
+- Rationale: Verified file sizes and behaviour in the repo.
+- Consequences: Kept components must be re-skinned.
+- Rules check: Rule 9 (no duplicate logic), rule 6 (no dead code).
+- Review trigger: If a kept component blocks the new design.
+
+## D-010: Stay on Vite + React 18 + React Router; no Next.js, no React 19 upgrade
+
+- Date: 2026-10-25
+- Status: Accepted
+- Context: Velora marketed on Next.js 16/React 19. Ruco backend serves static Vite build.
+- Options considered:
+  1. Move to Next.js: breaks one Python process serving built UI design.
+  2. Stay on Vite and React 18: Velora files framework-neutral, motion supports React 18.
+  3. Upgrade to React 19: unnecessary now.
+- Decision: Option 2.
+- Rationale: Fetched Velora sources use no Next.js APIs. motion peer range ^18 || ^19.
+- Consequences: Velora demos passing ref as prop to custom component won't work on React 18; attach refs to DOM elements.
+- Rules check: Rule 22 (no needless dependency change).
+- Review trigger: If build or console shows React 18 incompatibility.
+
+## D-011: Use the shadcn CLI with a hand-written components.json, not shadcn init
+
+- Date: 2026-10-25
+- Status: Accepted
+- Context: shadcn init rewrites src/index.css with its own colour variables.
+- Options considered:
+  1. shadcn init: automatic, but overwrites stylesheet.
+  2. Write components.json, lib/utils.ts and alias by hand, use shadcn add only to copy component files.
+- Decision: Option 2.
+- Rationale: Full control over every changed line.
+- Consequences: If CLI rejects manual file, fallback to manual-copy path.
+- Rules check: Rules 3, 6.
+- Review trigger: CLI errors on manual components.json.
+
+## D-012: New dependencies
+
+- Date: 2026-10-25
+- Status: Accepted
+- Context: Rule 22 requires entry for each new dependency.
+- Decision: Add motion (MIT), clsx (MIT), tailwind-merge (MIT), and @types/node (dev). No icon library.
+- Rationale: motion needed by 6/9 Velora files; clsx/tailwind-merge for cn().
+- Consequences: Slightly larger bundle.
+- Rules check: Rules 18, 20, 22.
+- Review trigger: If bundle grows beyond agreed budget.
+
+## D-013: Theme "Ruco Aurora" supersedes the "sodium darkroom" brief
+
+- Date: 2026-10-25
+- Status: Accepted
+- Context: Old brief says one orange accent, never gradient. Velora needs three-stop gradient.
+- Decision: Violet-black neutrals, brand gradient violet → magenta → amber. Sodium orange becomes warm end.
+- Consequences: Remove stale comment in index.css.
+- Rules check: Rule 6.
+- Review trigger: User dislikes palette.
+
+## D-014: Patching copied Velora files is allowed, and limited to 3 patches
+
+- Date: 2026-10-25
+- Status: Accepted
+- Context: Copied components become our code.
+- Decision: Exactly three patches: (1) Navbar Menu uses React Router NavLink, (2) Animated Beam reads brand colours from CSS variables, (3) Hero Parallax can show video frame.
+- Consequences: Re-running shadcn add overwrites patches. Keep in docs/vendor-patches.md.
+- Rules check: Rules 6, 27.
+- Review trigger: Velora releases version supporting these natively.
+
+## D-015: Effects budget per route
+
+- Date: 2026-10-25
+- Status: Accepted
+- Context: RTX 2050 4GB shared with Whisper and Ollama.
+- Decision:
+  | Route | Allowed | Forbidden |
+  |---|---|---|
+  | / | everything | n/a |
+  | /jobs/:id | Navbar, Beam, Terminal, Loaders, Blur Fade | Globe, Flickering Grid, Hero Parallax |
+  | /jobs/:id/clips | Navbar, Blur Fade, Loaders | Globe, Grid, Parallax, Beam |
+  | /settings | Navbar, Blur Fade, Terminal, Loaders | Globe, Grid, Parallax, Beam |
+- Rules check: UI-6.
+- Review trigger: Frame drops measured on job screen.
+
+## D-016: No remote images or fonts; showcase previews from exported clips
+
+- Date: 2026-10-25
+- Status: Accepted
+- Context: Hero Parallax demo loads Unsplash photos; breaks offline use.
+- Options considered:
+  1. Hot-linked photos: not allowed.
+  2. Patch card to show video frame from ExportRecord.download_url.
+  3. Add backend thumbnail endpoint.
+- Decision: Option 2 now. Option 3 only if video previews slow.
+- Consequences: Depends on download endpoint supporting Range requests.
+- Rules check: Rules 19, 22.
+- Review trigger: Showcase loads slowly with 15 videos.
+
+## D-017: Globe is decorative and uses no invented data
+
+- Date: 2026-10-25
+- Status: Accepted
+- Context: Ruco has no geographic data. Fake markers would be invented fact.
+- Decision: One symbolic marker "This machine", no arcs, label="Decorative globe". Never pin real location.
+- Review trigger: User decides to drop Globe.
+
 

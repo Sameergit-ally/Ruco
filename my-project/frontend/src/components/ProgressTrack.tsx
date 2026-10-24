@@ -35,12 +35,12 @@ export function ProgressTrack({ stages }: { stages: TrackStage[] }) {
     >
       {stages.map(({ key, label, state, fraction }) => (
         <li key={key} className="space-y-tight" aria-current={state === 'active' ? 'step' : undefined}>
-          <div className="relative h-2 overflow-hidden bg-sheet/20 [mask-image:linear-gradient(90deg,black_4px,transparent_4px)] [mask-size:6px_100%]">
-            {state === 'done' && <div className="absolute inset-0 bg-highlighter-bright" />}
-            {state === 'stopped' && <div className="absolute inset-0 bg-brick-wash" />}
+          <div className="relative h-2.5 overflow-hidden rounded-[2px] bg-white/10 [mask-image:linear-gradient(90deg,black_4px,transparent_4px)] [mask-size:6px_100%]">
+            {state === 'done' && <div className="absolute inset-0 bg-[#e5476a] shadow-[0_0_8px_#e5476a]" />}
+            {state === 'stopped' && <div className="absolute inset-0 bg-brick" />}
             {state === 'active' && (
               <div
-                className="absolute inset-0 origin-left bg-highlighter-bright transition-transform duration-(--duration-slow) ease-(--ease-standard)"
+                className="absolute inset-0 origin-left bg-gradient-to-r from-[#9e1432] to-[#e5476a] shadow-[0_0_10px_#e5476a] transition-transform duration-(--duration-slow) ease-(--ease-standard)"
                 style={{ transform: `scaleX(${Math.min(1, Math.max(0.04, fraction))})` }}
               />
             )}
@@ -48,8 +48,13 @@ export function ProgressTrack({ stages }: { stages: TrackStage[] }) {
           <p
             className={[
               'flex items-center gap-1 font-mono text-micro',
-              state === 'pending' ? 'text-sheet/50' : state === 'stopped' ? 'text-brick-wash' : 'text-sheet',
-              state === 'active' ? 'font-medium' : '',
+              state === 'pending'
+                ? 'text-white/40'
+                : state === 'stopped'
+                  ? 'text-brick'
+                  : state === 'active'
+                    ? 'text-white font-semibold'
+                    : 'text-white/80',
             ].join(' ')}
           >
             {state === 'done' && <Check />}
